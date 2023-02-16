@@ -1,0 +1,46 @@
+All query formats, no matter the URL, will be formatted as such:
+
+****
+
+https://<url>/?token=<token>?.../
+
+****
+
+All internal query responses, no matter the URL, will be formatted as a JSON object as such:
+
+****
+
+{
+        'statusCode': 200,
+        'body': json.dumps(response)
+}
+
+response = 
+{
+    "echo" : <object formatted list of your queries>,
+    "response" : <respective response>
+}
+
+****
+
+All external query responses, no matter the URL, will be formatted as a JSON object as such:
+
+****
+
+{
+        'statusCode': 200,
+        'headers': {
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+         },
+        'body': json.dumps(response)
+}
+
+response = 
+{
+    "echo" : <object formatted list of your queries>,
+    "response" : <respective response>
+}
+
+****
