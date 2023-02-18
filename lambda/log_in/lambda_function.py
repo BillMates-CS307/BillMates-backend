@@ -1,11 +1,12 @@
 import json
 import requests
 import email
-
-def grab_json_from_url(url: str):
-    resp = requests.get(url)
-    return resp.json()
-
+import bundle.api as api
+    
+def check_database(data: dict, action: int) -> bool:
+    url = "https://2nc74mmtjrt36ld4maqz3ibryi0ztygw.lambda-url.us-east-2.on.aws/"
+    return api.grab_json_from_url(url, {'action':action}, data)
+    
 def lambda_handler(event, context):
     
     # Parameters
@@ -14,21 +15,11 @@ def lambda_handler(event, context):
     token = event['headers']['token']
     response = {"echo" : payload, "response": {}}
     
-    verification = grab_json_from_url("https://cdv3yr23omakr4fkrtqgbpeela0zejwf.lambda-url.us-east-2.on.aws/?token=" + token)
+    verification = api.grab_json_from_url("https://cdv3yr23omakr4fkrtqgbpeela0zejwf.lambda-url.us-east-2.on.aws/?token=" + token)
     response['response']["token_verified"] = verification['response']
     
     # Fake database for testings
     if verification['response']:
-        usr, pw = payload['email'], payload['password']
-        with open("pho_db.json") as f:
-            obj = json.load(f)
-            response['response']['success'] = usr in obj['ledger'] and obj['ledger'][usr] == pw
-    return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-            },
-            'body': json.dumps(response)
-    }
+        response['response']['success'] = check_database(payload, 'CHECK')['response']['success']
+    
+    return api.build_capsule(response)
