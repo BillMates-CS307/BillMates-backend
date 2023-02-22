@@ -9,3 +9,15 @@ def get_database():
 
     # Create the database for our example (we will use the same database throughout the tutorial
     return client['billmates']
+
+def query_user(user_data: dict):
+    dbname = get_database()
+
+    # Create a new collection
+    users = dbname["users"]
+
+    # user_date = {'email': ___ , 'password': ____}
+    user = users.find_one(user_data)
+
+    # TODO: should return to client
+    return user

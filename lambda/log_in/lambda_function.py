@@ -2,24 +2,27 @@ import json
 import requests
 import email
 import bundle.api as api
+from pymongo import MongoClient
+import bundle.mongo as mongo
     
-def check_database(data: dict, action: int) -> bool:
-    url = "https://2nc74mmtjrt36ld4maqz3ibryi0ztygw.lambda-url.us-east-2.on.aws/"
-    return api.grab_json_from_url(url, {'action':action}, data)
+def check_database(data: dict) -> bool:
+    query = {'email':data['email'], 'password':data['password']}
+    return mongo.query_user(query) != None
     
 def lambda_handler(event, context):
     
     # Parameters
     payload = json.loads(event['body'])
+    
+    # Build reponse JSON
+    response = {"echo" : payload, "response": {}}
+
     # Verify token is correct before running more commands
     token = event['headers']['token']
-    response = {"echo" : payload, "response": {}}
+    response['response']["token_success"] = api.check_token(token)
     
-    verification = api.grab_json_from_url("https://cdv3yr23omakr4fkrtqgbpeela0zejwf.lambda-url.us-east-2.on.aws/?token=" + token)
-    response['response']["token_verified"] = verification['response']
-    
-    # Fake database for testings
-    if verification['response']:
-        response['response']['success'] = check_database(payload, 'CHECK')['response']['success']
+    # Match against database
+    if response['response']["token_success"]:
+        response['response']['login_success'] = check_database(payload)
     
     return api.build_capsule(response)

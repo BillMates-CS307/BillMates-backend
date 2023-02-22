@@ -1,6 +1,13 @@
 import json
 import requests
 
+variables = {
+    "tokens" : 
+    set([
+        "zpdkwA.2_kLU@zg"
+    ])
+}
+
 def build_capsule(response: dict) -> dict:
     return {
             'statusCode': 200,
@@ -15,3 +22,8 @@ def build_capsule(response: dict) -> dict:
 def grab_json_from_url(url: str, headers=None, data=None) -> dict:
     resp = requests.post(url, json=data, headers=headers)
     return resp.json()
+
+def check_token(token: str) -> bool:
+    if token in variables['tokens']:
+        return True
+    return False
