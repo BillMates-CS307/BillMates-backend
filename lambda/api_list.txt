@@ -1,0 +1,11 @@
+log_in:
+    URL: https://jwfjuifdunib5gmornhrs4nm4a0pitnm.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: Expecting an 'email' and 'password' field (JSON)
+    response:
+        IF (token is correct, login incorrect):
+            = {'token_success' : true, 'login_success' : false}
+        IF (token is correct, login correct):
+            = {'token_success' : true, 'login_success' : true}
+        IF (token is incorrect):
+            = {'token_success' : false}
