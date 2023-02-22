@@ -15,14 +15,14 @@ def lambda_handler(event, context):
     payload = json.loads(event['body'])
     
     # Build reponse JSON
-    response = {"echo" : payload, "response": {}}
+    response = {}
 
     # Verify token is correct before running more commands
     token = event['headers']['token']
-    response['response']["token_success"] = api.check_token(token)
+    response["token_success"] = api.check_token(token)
     
     # Match against database
-    if response['response']["token_success"]:
-        response['response']['login_success'] = check_database(payload)
+    if response["token_success"]:
+        response['login_success'] = check_database(payload)
     
     return api.build_capsule(response)
