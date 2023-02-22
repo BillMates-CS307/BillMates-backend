@@ -13,12 +13,12 @@ def grab_json_from_url(url: str):
 
 def lambda_handler(event, context):
     token = event['headers']['token']
-    response = {"echo": "None", "response": {}}
+    response = {}
 
     # token verification
-    response['response']["verified"] = api.check_token(token)
+    response['token_success'] = api.check_token(token)
 
-    if response['response']["verified"]:
+    if response['token_success']:
         db = mongo.get_database()
 
         # retrieving parameters
@@ -33,12 +33,15 @@ def lambda_handler(event, context):
             new_user = {
                 'email': email,
                 'password': password,
-                'name': name
+                'groups': [],
+                'name': name,
+                'settings': {},
+                'attmepts': 0
             }
             users.insert_one(new_user)
-            response['sign_up_success'] = True
+            response['signup_success'] = True
         else:
-            response['sign_up_success'] = False
+            response['signup_success'] = False
 
         return {
             'statusCode': 200,
