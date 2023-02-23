@@ -9,3 +9,26 @@ log_in:
             = {'token_success' : true, 'login_success' : true}
         IF (token is incorrect):
             = {'token_success' : false}
+
+sign_up:
+    URL: https://rdsn74oehsmrcoc2spf6aiw4iy0hqcbv.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: expecting an 'email', 'password' and 'name' field (JSON)
+    IF (token is correct, email available):
+        = {'token_success' : true, 'signup_success' : true}
+    IF (token is correct, email unavailable):
+        = {'token_success' : true, 'signup_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false}
+
+change_settings:
+    URL: https://yimbhwmzyzeikdbjqylkdonwoy0czhwq.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: expecting an 'email' field (JSON)
+    optional payload: 'password' and 'name' field (JSON)
+    IF (token is correct, email correct):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, email incorrect):
+        = {'token_success' : true, 'change_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false}
