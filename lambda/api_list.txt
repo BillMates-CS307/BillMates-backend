@@ -32,3 +32,17 @@ change_settings:
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false}
+
+submit_expense:
+    URL: https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: 'title' (string), 'group_id' (int), 'expense' (dict), 'expense_time' (date), due_date (date) fields (JSON)
+    expense dict contains user email strings as keys and amount due/owed doubles as values. All values positive,
+    first key/value pair is user owed money (who submitted request)
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (expense totals don't add up or one or more are negative or one or more users not in specified group):
+            = {'token_success' : true, 'submit_success' = false}
+        ELSE :
+            = {'token_success' : true, 'submit_success' = true}
