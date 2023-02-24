@@ -33,7 +33,7 @@ change_settings:
     IF (token is incorrect):
         = {'token_success' : false}
 
-submit_expense:
+new_expense:
     URL: https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: 'title' (string), 'group_id' (int), 'expense' (dict), 'expense_time' (date), due_date (date) fields (JSON)
