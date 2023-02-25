@@ -10,7 +10,7 @@ def get_database():
     # Create the database for our example (we will use the same database throughout the tutorial
     return client['billmates']
 
-def query_user(user_data: dict):
+def query_user(user_data: dict, get_collection: bool):
     dbname = get_database()
 
     # Create a new collection
@@ -20,4 +20,6 @@ def query_user(user_data: dict):
     user = users.find_one(user_data)
 
     # TODO: should return to client
-    return user
+    if not get_collection:
+        return user
+    return (user, users)
