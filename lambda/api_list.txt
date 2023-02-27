@@ -27,7 +27,12 @@ change_settings:
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: expecting an 'email' field (JSON)
     optional payload: 'password', 'notification', and 'name' field (JSON)
-    'notification' needs to be 'both', 'only email', or 'only billmates'
+    body: {
+    email,
+    name,
+    password,
+    notification: "both" | "only billmates" | "only emails"
+    }
     IF (token is correct, email correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, email incorrect):
