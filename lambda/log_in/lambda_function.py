@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 
 def check_database(data: dict) -> bool:
-    query = {'email':data['email'], 'password':data['password']}
+    query = {'email':data['email']}
     return mongo.query_user(query, True)
     
 def lambda_handler(event, context):
@@ -21,16 +21,23 @@ def lambda_handler(event, context):
     
     # Match against database
     if response["token_success"]:
-        user, users = check_database(payload) 
-        response['login_success'] = user != None
+        user, users = check_database(payload)
+        response['login_success'] = (user != None) and (user['password'] == payload['password'])
         attempts = {"$set": {"attempts": 0} }
         if response['login_success']:
             response['user_data'] = {
                 "email" : user['email'],
                 "name" : user['name'],
                 "groups" : user['groups'],
-                "settings" : user['settings']
+                "settings" : user['settings'],
             }
+            users.update_one(user, {"$set": { "attempts": 0} })
+        else:
+            if user != None:
+                response['user_data'] = {'attempts' : user['attempts'] + 1}
+                users.update_one(user, {"$set": { "attempts": user['attempts'] + 1} })
+            else:
+                response = {"ERROR" : "No user found"}
     else:
         response['login_success'] = False
     

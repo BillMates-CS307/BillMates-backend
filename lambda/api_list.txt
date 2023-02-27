@@ -4,8 +4,10 @@ log_in:
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: Expecting an 'email' and 'password' field (JSON)
     response:
-        IF (token is correct, login incorrect):
-            = {'token_success' : true, 'login_success' : false}
+        IF (token is correct, login incorrect [NO USER]):
+            = {"ERROR" : "No user found"}
+        IF (token is correct, login incorrect [BAD PASSWORD]):
+            = {'token_success' : true, 'login_success' : false, user_data : {attempts : }}
         IF (token is correct, login correct):
             = {'token_success' : true, 'login_success' : true, 'user_data' : {email : , name : , groups : , settings : }}
         IF (token is incorrect):
