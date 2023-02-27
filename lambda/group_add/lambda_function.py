@@ -29,6 +29,17 @@ def lambda_handler(event, context):
                     new_arr.append(payload['email'])
                     groups.update_one(group, {"$set": { "members": new_arr} })
                     response['group_add_success'] = True
+                    
+                    # adding group to users group field
+                    users = db['users']
+                    user_groups = users.find_one({'email': payload['email']})['groups']
+                    new_group = {}
+                    new_group['group_id'] = payload['uuid']
+                    new_group['name'] = group['name']
+                    new_group['balance'] = 0
+                    user_groups.append(new_group)
+                    new_val = {'groups': user_groups}
+                    users.update_one({'email': payload['email']}, {'$set': new_val})
                 else:
                     response['group_add_success'] = False
             else:
