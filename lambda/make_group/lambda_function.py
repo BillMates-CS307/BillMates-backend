@@ -2,6 +2,7 @@ import json
 from pymongo import MongoClient
 import bundle.mongo as mongo
 import bundle.api as api
+import uuid as uu
 
 def check_database(data: dict, groups) -> bool:
     query = {'manager':data['manager'], 'name' : data['name']}
@@ -25,6 +26,7 @@ def lambda_handler(event, context):
             if not check_database(payload, groups):
                 group_obj = {
                     "name" : payload['name'],
+                    "uuid" : str(uu.uuid4()),
                     "members" : [],
                     "manager" : payload['manager'],
                     "expenses" : [],
