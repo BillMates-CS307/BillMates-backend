@@ -23,10 +23,16 @@ sign_up:
         = {'token_success' : false}
 
 change_settings:
+    change_settings:
     URL: https://yimbhwmzyzeikdbjqylkdonwoy0czhwq.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
-    payload: expecting an 'email' field (JSON)
-    optional payload: 'password' and 'name' field (JSON)
+    payload: {
+                email: string
+                name?: string
+                password?: string
+                notification?: "both" | "only billmates" | "only email"
+             }
+    response payload:
     IF (token is correct, email correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, email incorrect):
@@ -34,7 +40,7 @@ change_settings:
     IF (token is incorrect):
         = {'token_success' : false}
 
-submit_expense:
+new_expense:
     URL: https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: 'title' (string), 'group_id' (int), 'expense' (dict), 'expense_time' (date), due_date (date) fields (JSON)
