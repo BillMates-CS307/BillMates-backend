@@ -27,7 +27,7 @@ def lambda_handler(event, context):
                 group_obj = {
                     "name" : payload['name'],
                     "uuid" : str(uu.uuid4()),
-                    "members" : [],
+                    "members" : [payload['manager']],
                     "manager" : payload['manager'],
                     "expenses" : [],
                     "calendar" : [],

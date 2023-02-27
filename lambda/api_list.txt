@@ -54,7 +54,7 @@ new_expense:
         ELSE :
             = {'token_success' : true, 'submit_success' = true}
 
-new_expense:
+make_group:
     URL: https://wwr7yimislgmw7f5crxlnqmxxq0prart.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: 'manager' (string), 'name' (string) - Manager is the person who created it (email) and name is the name of the group.
@@ -67,3 +67,17 @@ new_expense:
             = {"ERROR" : "Malformed Body"}
         ELSE IF (fields are correct, group is made):
             = {"token_success" : true, "make_group_success": true}
+
+group_add:
+    URL: https://cxt3kig2ocrigm3mvzm7ql3m6u0plfwd.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: 'email' (string), 'uuid' (string) - Email is the email of the user who wants to join, and uuid is the uuid (link val) of the group.
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (group does not exist):
+            = {"ERROR" : "No such group"}
+        ELSE IF (user already in group) :
+            = {"token_success" : true, "group_add_success": false}
+        ELSE IF (user not in group, user is added in database):
+            = {"token_success" : true, "group_add_success": true}
