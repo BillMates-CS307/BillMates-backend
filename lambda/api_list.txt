@@ -53,3 +53,17 @@ new_expense:
             = {'token_success' : true, 'submit_success' = false}
         ELSE :
             = {'token_success' : true, 'submit_success' = true}
+
+new_expense:
+    URL: https://wwr7yimislgmw7f5crxlnqmxxq0prart.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: 'manager' (string), 'name' (string) - Manager is the person who created it (email) and name is the name of the group.
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (group exists):
+            = {"token_success" : true, "make_group_success": false}
+        ELSE IF (payload doesn't have the correct fields) :
+            = {"ERROR" : "Malformed Body"}
+        ELSE IF (fields are correct, group is made):
+            = {"token_success" : true, "make_group_success": true}
