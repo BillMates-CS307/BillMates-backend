@@ -1,13 +1,11 @@
 import json
-import requests
-import email
 import bundle.api as api
 from pymongo import MongoClient
 import bundle.mongo as mongo
-    
+
 def check_database(data: dict) -> bool:
     query = {'email':data['email'], 'password':data['password']}
-    return mongo.query_user(query) != None
+    return mongo.query_user(query, True)
     
 def lambda_handler(event, context):
     
@@ -23,6 +21,17 @@ def lambda_handler(event, context):
     
     # Match against database
     if response["token_success"]:
-        response['login_success'] = check_database(payload)
+        user, users = check_database(payload) 
+        response['login_success'] = user != None
+        attempts = {"$set": {"attempts": 0} }
+        if response['login_success']:
+            response['user_data'] = {
+                "email" : user['email'],
+                "name" : user['name'],
+                "groups" : user['groups'],
+                "settings" : user['settings']
+            }
+    else:
+        response['login_success'] = False
     
     return api.build_capsule(response)

@@ -7,9 +7,9 @@ log_in:
         IF (token is correct, login incorrect):
             = {'token_success' : true, 'login_success' : false}
         IF (token is correct, login correct):
-            = {'token_success' : true, 'login_success' : true}
+            = {'token_success' : true, 'login_success' : true, 'user_data' : {email : , name : , groups : , settings : }}
         IF (token is incorrect):
-            = {'token_success' : false}
+            = {'token_success' : false, 'login_success' : false}
 
 sign_up:
     URL: https://rdsn74oehsmrcoc2spf6aiw4iy0hqcbv.lambda-url.us-east-2.on.aws/
