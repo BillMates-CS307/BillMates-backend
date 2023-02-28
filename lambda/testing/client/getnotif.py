@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+
+import json
+import requests
+
+def grab_json_from_url(url: str) -> json:
+    headers = {'token': 'zpdkwA.2_kLU@zg'}
+    body = {'object_id' : '63fe8d77f687c0bde3b1778e'}
+    resp = requests.post(url, headers=headers, json=body)
+    return resp.json()
+
+def main():
+    my_json = grab_json_from_url('https://gzduqcygvszdpcegs76a6crbna0ujgmf.lambda-url.us-east-2.on.aws/')
+    print(my_json)
+
+main()

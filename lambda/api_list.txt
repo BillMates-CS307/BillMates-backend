@@ -95,3 +95,22 @@ pay_expense:
             = {"token_success" : true, "pay_success": false}
         ELSE:
             = {"token_success" : true, "group_add_success": true}
+
+get_notification:
+    URL: https://gzduqcygvszdpcegs76a6crbna0ujgmf.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                object_id: string
+             }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, object_id is invalid):
+        = {'token_success' : true, 'notification' : null}
+    IF (token is correct, object_id is valid)
+        = {'token_success' : true, 'notification' : {
+                    id: string
+                    sender: string
+                    message: string
+                    time: TimeString
+                    isread: boolean
+           }}
