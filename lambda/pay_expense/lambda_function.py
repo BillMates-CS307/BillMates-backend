@@ -79,6 +79,7 @@ def lambda_handler(event, context):
         # create entry in pending_paid_expenses
         pending_expense = {
             'expense_id': expense_id,
+            'group_id': group_id,
             'title': expense['title'],
             'amount_paid': amount,
             'paid_by': email,

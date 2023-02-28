@@ -16,6 +16,7 @@ def lambda_handler(event, context):
         groups = db['groups']
         users = db['users']
         expenses = db['expenses']
+        pending = db['pending_paid_expenses']
         
         # retrieving parameters
         parameters = json.loads(event['body'])
@@ -47,5 +48,11 @@ def lambda_handler(event, context):
         for g in user_groups:
             if g['group_id'] == group_id:
                 response['balance'] = g['balance']
-    
+                
+        response['pending'] = list(pending.find({'paid_to': email}, {'_id': 0})) # returns a cursor
+        for p in response['pending']:
+            if p['group_id'] == group_id:
+                p['expense_id'] = str(p['expense_id']) 
+            else:
+                del p
     return api.build_capsule(response)
