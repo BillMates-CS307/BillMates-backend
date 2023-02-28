@@ -21,6 +21,7 @@ def lambda_handler(event, context):
         parameters = json.loads(event['body'])
         
         group_id = parameters['group_id']
+        email = parameters['email']
         group = groups.find_one({'uuid': group_id})
         
         if group is None:
@@ -30,6 +31,7 @@ def lambda_handler(event, context):
         
         g_requests = groups.find_one({'uuid': group_id})['expenses']
         g_members = groups.find_one({'uuid': group_id})['members']
+        name = groups.find_one({'uuid': group_id})['name']
         requests = []
         members = {}
         for r in g_requests:
@@ -40,5 +42,10 @@ def lambda_handler(event, context):
             members[m] = users.find_one({'email': m})['name']
         response['members'] = members
         response['expenses'] = requests
+        response['name'] = name
+        user_groups = users.find_one({'email': email})['groups']
+        for g in user_groups:
+            if g['group_id'] == group_id:
+                response['balance'] = g['balance']
     
     return api.build_capsule(response)
