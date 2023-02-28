@@ -83,3 +83,15 @@ group_add:
             = {"token_success" : true, "group_add_success": false}
         ELSE IF (user not in group, user is added in database):
             = {"token_success" : true, "group_add_success": true}
+
+pay_expense:
+    URL: https://q6dj43wfjfvztvxbhdyqogvn2y0gfcro.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: 'email' (string), 'expense_id' (string), 'amount' (double)
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (amount exceeds users debt on that expense):
+            = {"token_success" : true, "pay_success": false}
+        ELSE:
+            = {"token_success" : true, "group_add_success": true}
