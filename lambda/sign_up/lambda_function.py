@@ -26,7 +26,7 @@ def lambda_handler(event, context):
             new_user = {
                 'email': email,
                 'password': password,
-                'groups': {},
+                'groups': [],
                 'name': name,
                 'settings': {'notification': 'both'},
                 'attempts': 0
