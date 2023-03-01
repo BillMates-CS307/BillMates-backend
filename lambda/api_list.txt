@@ -153,3 +153,16 @@ delete_group:
         = {'token_success' : true, 'delete_success' : false}
     IF (token is correct, group_id is valid)
         = {'token_success' : true, 'delete_success' : true}
+
+get_all_notifications:
+    URL: https://e2fuerxz7hkbeafwy73tltsijm0cvrlz.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email is invalid):
+        = {'ERROR' :'No email found'}
+    IF (token is correct, group_id is valid)
+        = {'token_success' : true, 'notifications' : {}}

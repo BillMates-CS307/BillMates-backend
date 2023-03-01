@@ -1,4 +1,4 @@
-from g_password import get_password
+from bundle.g_password import get_password
 from email.mime.text import MIMEText
 import smtplib
 
