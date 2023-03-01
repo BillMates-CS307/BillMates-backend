@@ -179,3 +179,16 @@ get_user:
         = {'token_success' : true, 'user' : null}
     IF (token is correct, email is valid)
         = {'token_success' : true, 'user' : {}}
+
+read_notification:
+    URL: https://wzqss3razlwkrdnwdm6nr4vx6i0rxnqn.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        object_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, object_id was valid):
+        = {'token_success' : true, 'read_success' : true}
+    IF (token is correct, object_id is invalid)
+        = {'token_success' : true, 'read_success' : false}

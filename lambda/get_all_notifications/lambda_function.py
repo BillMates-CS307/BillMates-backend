@@ -30,6 +30,7 @@ def lambda_handler(event, context):
         for notif in notif_arr:
             info = notifs.find_one({"_id" : ObjectId(notif)})
             my_dict = {
+                "_id" : str(info['_id']),
                 "sender" : info['sender'],
                 "message" : info['message'],
                 "time" : str(info['time']),
