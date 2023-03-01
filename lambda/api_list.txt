@@ -141,3 +141,15 @@ delete_notification:
     IF (token is correct, object_id is valid)
         = {'token_success' : true, 'delete_success' : true}
 
+delete_group:
+    URL: https://zp6hyrzgyuocojaqm6ahxc5wxm0rjujf.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        group_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, group_id is invalid):
+        = {'token_success' : true, 'delete_success' : false}
+    IF (token is correct, group_id is valid)
+        = {'token_success' : true, 'delete_success' : true}
