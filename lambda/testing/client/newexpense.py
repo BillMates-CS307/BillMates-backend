@@ -6,12 +6,11 @@ import requests
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     body = {'group_id': "my_uuid",
-            'title': 'another_expense',
-            'total': 13,
-            'expense': {'test@test.test': 13},
-            'owner': 'm@email.com', 
-            'request_time': 'now', 
-            'due_date': 'later'}
+            'title': 'no_dates',
+            'total': 17,
+            'expense': {'test@test.test': 17},
+            'owner': 'm@email.com'
+            }
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
 

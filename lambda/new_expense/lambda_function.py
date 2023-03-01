@@ -22,8 +22,6 @@ def lambda_handler(event, context):
         group_id = parameters['group_id'] # group_id for expense
         owner_email = parameters['owner']
         u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
-        request_time = parameters['request_time'] # time created
-        due_date = parameters['due_date'] # when expense is due
         # notification when due date is reached?
         
         u_expenses[owner_email] = total
@@ -50,7 +48,6 @@ def lambda_handler(event, context):
         if failure:
             response['submit_success'] = False
             return api.build_capsule(response)
-        total = 0    
         for u_email in u_expenses:
             # loop to update group balance of each user
             user_groups = users.find_one({'email': u_email})['groups']
@@ -62,7 +59,6 @@ def lambda_handler(event, context):
             # update balance of expense_group     
             if u_email == owner_email: # user who submitted expense
                 expense_group['balance'] += u_expenses[u_email]
-                total += u_expenses[u_email]
             else: # users who owe money
                 expense_group['balance'] -= u_expenses[u_email]
             
@@ -81,9 +77,7 @@ def lambda_handler(event, context):
             'title': title,
             'owner': owner_email,
             'users': u_expenses,
-            'amount': total,
-            'due_date': due_date,
-            'request_time': request_time
+            'amount': total
         }
         insert_result = expenses.insert_one(new_expense)
         

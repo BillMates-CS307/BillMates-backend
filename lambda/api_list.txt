@@ -93,7 +93,21 @@ pay_expense:
         IF (amount exceeds users debt on that expense):
             = {"token_success" : true, "pay_success": false}
         ELSE:
-            = {"token_success" : true, "group_add_success": true}
+            = {"token_success" : true, "pay_success": true}
+
+handle_pending_payment:
+    URL: https://jfynig6bitelqawn2z4pv7rg440wnwjw.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: 'accepted' (boolean), 'expense_id' (string)
+    accepted is true is payment accepted, false otherwise
+    expense_id is id of original expense, not of handle_pending_payment
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (there is no pending_payment with given expense_id):
+            = {"token_success" : true, "handle_success": false}
+        ELSE:
+            = {"token_success" : true, "handle_success": true}
 
 get_notification:
     URL: https://gzduqcygvszdpcegs76a6crbna0ujgmf.lambda-url.us-east-2.on.aws/

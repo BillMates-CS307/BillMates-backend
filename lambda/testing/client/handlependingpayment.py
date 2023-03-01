@@ -5,12 +5,12 @@ import requests
 
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
-    body = {'email': "lcover@purdue.edu", "uuid":"my_uuid"}
+    body = {'accepted': False, 'expense_id':'63fd495d86cc16ec750c1940'}
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
 
 def main():
-    my_json = grab_json_from_url('https://cxt3kig2ocrigm3mvzm7ql3m6u0plfwd.lambda-url.us-east-2.on.aws/')
+    my_json = grab_json_from_url('https://jfynig6bitelqawn2z4pv7rg440wnwjw.lambda-url.us-east-2.on.aws/')
     print(my_json)
 
 main()
