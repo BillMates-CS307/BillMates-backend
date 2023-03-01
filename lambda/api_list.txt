@@ -164,5 +164,18 @@ get_all_notifications:
         = {'token_success' : false}
     IF (token is correct, email is invalid):
         = {'ERROR' :'No email found'}
-    IF (token is correct, group_id is valid)
+    IF (token is correct, email is valid)
         = {'token_success' : true, 'notifications' : {}}
+
+get_user:
+    URL: https://spdzmxp6xdfjiwptqdabqgcy4q0rmcwt.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email is invalid):
+        = {'token_success' : true, 'user' : null}
+    IF (token is correct, email is valid)
+        = {'token_success' : true, 'user' : {}}
