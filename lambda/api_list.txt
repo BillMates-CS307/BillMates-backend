@@ -1,5 +1,4 @@
 log_in:
-    *** CURRENTLY MALFORMED DUE TO EMAIL SETUP
     URL: https://jwfjuifdunib5gmornhrs4nm4a0pitnm.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: Expecting an 'email' and 'password' field (JSON)
