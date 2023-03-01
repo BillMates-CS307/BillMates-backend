@@ -16,7 +16,7 @@ def send_email(subject, body, sender, recipients, password):
     smtp_server.sendmail(sender, recipients, msg.as_string())
     smtp_server.quit()
 
-body = "Your account has been temporarily locked due to suspicious activity."
+body = "Someone has been attempting to log into your account. Please make sure you are using a secure password."
 sender = "billmatesmail@gmail.com"
 
 def check_database(data: dict) -> bool:
