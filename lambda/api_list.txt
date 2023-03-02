@@ -30,7 +30,8 @@ change_settings:
     payload: {
                 email: string
                 name?: string
-                password?: string
+                newPassword?: string
+                oldPassword?: string
                 notification?: "both" | "only billmates" | "only email"
              }
     response payload:

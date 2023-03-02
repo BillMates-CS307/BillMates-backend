@@ -24,19 +24,23 @@ def lambda_handler(event, context):
         # retrieving parameters
         parameters = json.loads(event['body'])
         email = parameters['email']
+        # retrieve collection and user
+        users = db['users']
+        user = mongo.query_user({'email': email})
         # check if new password and name are provided
         password = None
         name = None
         notification = None
-        if 'password' in parameters:
-            password = parameters['password']
+        if 'newPassword' in parameters:
+            if parameters['oldPassword'] == None or not parameters['oldPassword'] == user['password']:
+                response['change_success'] = False
+                return api.build_capsule(response)
+            password = parameters['newPassword']
         if 'name' in parameters:
             name = parameters['name']
         if 'notification' in parameters:
             notification = parameters['notification']
-        # retrieve collection and user
-        users = db['users']
-        user = mongo.query_user({'email': email})
+        
         if user is None:
             # if no user has email, user doesn't exist and return failure
             response['change_success'] = False
@@ -59,12 +63,4 @@ def lambda_handler(event, context):
             users.update_one(query, {'$set': new_val})
             response['change_success'] = True
 
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
-            },
-            'body': json.dumps(response)
-        }
+    return api.build_capsule(response)
