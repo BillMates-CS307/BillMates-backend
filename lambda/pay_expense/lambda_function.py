@@ -49,7 +49,7 @@ def lambda_handler(event, context):
                 g['balance'] += amount
         for g in owner['groups']:
             if g['group_id'] == group_id:
-                g['balance'] += amount
+                g['balance'] -= amount
         new_val_u = {'groups': user['groups']}
         new_val_o = {'groups': owner['groups']}
         users.update_one({'email': email}, {'$set': new_val_u})
@@ -60,24 +60,25 @@ def lambda_handler(event, context):
             # update amount and users amount owed fields
             expense['users'][email] -= amount
             expense['amount'] -= amount
-            new_val = {'users': expense['users'], 'amount': expense['amount']}
+            new_val = {'users': expense['users']}
             expenses.update_one({'_id': expense_id}, {'$set': new_val})
-            
+            new_val = {'amount': expense['amount']}
+            expenses.update_one({'_id': expense_id}, {'$set': new_val})
         else: # if the expense is being paid in full
             # remove user from users field of expense
             del expense['users'][email]
             new_val = {'users': expense['users']}
             expenses.update_one({'_id': expense_id}, {'$set': new_val})
-            
             # if user is only debtor on expense, remove expense
             if len(expense['users']) == 0:
                 # from expenses
                 expenses.delete_one({'_id': expense_id})
                 # from group
-                for i in range(0, len(group['expenses']) - 1):
-                    if expense_id == group['expenses'][i]:
-                        del group['expenses'][i]
-                new_val = {'expenses': group['expenses']}
+                temp_exps = []
+                for e in group['expenses']:
+                    if not expense_id == e:
+                        temp_exps.append(e)
+                new_val = {'expenses': temp_exps}
                 groups.update_one({'uuid': group_id}, {'$set': new_val})
                 
         # create entry in pending_paid_expenses
