@@ -26,17 +26,22 @@ def lambda_handler(event, context):
         query_user = {'email' : payload['email']}
         user = check_database(query_user, users)
         notif_arr = user['notifications']
+        new_arr = user["notifications"].copy()
         out_list = []
         for notif in notif_arr:
             info = notifs.find_one({"_id" : ObjectId(notif)})
-            my_dict = {
-                "_id" : str(info['_id']),
-                "sender" : info['sender'],
-                "message" : info['message'],
-                "time" : str(info['time']),
-                "isread" : info['isread']
-            }
-            out_list.append(my_dict)
+            if info != None:
+                my_dict = {
+                    "_id" : str(info['_id']),
+                    "sender" : info['sender'],
+                    "message" : info['message'],
+                    "time" : str(info['time']),
+                    "isread" : info['isread']
+                }
+                out_list.append(my_dict)
+            else:
+                new_arr.remove(notif)
+        users.update_one(user, {"$set" : {"notifications": new_arr}})
         response['notifications'] = out_list
     return api.build_capsule(response)
             
