@@ -26,7 +26,7 @@ def lambda_handler(event, context):
         email = parameters['email']
         # retrieve collection and user
         users = db['users']
-        user = mongo.query_user({'email': email})
+        user = users.find_one({'email': email})
         # check if new password and name are provided
         password = None
         name = None
