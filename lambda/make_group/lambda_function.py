@@ -24,9 +24,10 @@ def lambda_handler(event, context):
             db = mongo.get_database()
             groups = db['groups']
             if not check_database(payload, groups):
+                group_id = str(uu.uuid4())
                 group_obj = {
                     "name" : payload['name'],
-                    "uuid" : str(uu.uuid4()),
+                    "uuid" : group_id,
                     "members" : [payload['manager']],
                     "manager" : payload['manager'],
                     "expenses" : [],
@@ -35,6 +36,17 @@ def lambda_handler(event, context):
                 }
                 groups.insert_one(group_obj)
                 response['make_group_success'] = True
+                
+                # add group to manager's groups field
+                users = db['users']
+                manager = users.find_one({'email': payload['manager']})
+                manager['groups'].append({
+                    'group_id': group_id,
+                    'name': payload['name'],
+                    'balance': 0
+                })
+                new_val = {'groups': manager['groups']}
+                users.update_one({'email': payload['manager']}, {'$set': new_val})
             else:
                 response['make_group_success'] = False
         else: 
