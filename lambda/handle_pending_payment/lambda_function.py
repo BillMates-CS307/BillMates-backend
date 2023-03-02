@@ -1,8 +1,12 @@
 import json
 from pymongo import MongoClient
 import bundle.mongo as mongo
+import bundle.g_password
 import bundle.api as api
+import bundle.send as mail
+import bundle.notification as notif
 from bson.objectid import ObjectId
+import datetime
 
 def lambda_handler(event, context):
     token = event['headers']['token']
@@ -25,14 +29,13 @@ def lambda_handler(event, context):
             response['ERROR'] = 'malformed body'
             return api.build_capsule(response)
         status = parameters['accepted'] # true means accepted, false means denied
-        original_id = parameters['expense_id']
+        original_id = ObjectId(parameters['expense_id']) # convert from string
         
         # payment_id is valid
         if pending_expenses.find_one({'expense_id': original_id}) is None:
             response['handle_success'] = False
             return api.build_capsule(response)
         response['handle_success'] = True
-        original_id = ObjectId(original_id) # convert from string
         
         # getting objects
         pending = pending_expenses.find_one({'expense_id': original_id})
@@ -47,7 +50,17 @@ def lambda_handler(event, context):
         # is payment accepted (status == true) means accepted
         if not status: # payment denied
         
-            ### send notification to paid_by
+            # send notification to paid_by
+            notif_pref = users.find_one({'email': paid_by})['settings']['notification']
+            body = paid_to + ' has denied your payment of $' + str(amount) + ' for ' + \
+                        title + ' in group ' + group['name'] + '.'
+            if notif_pref == 'only_email' or notif_pref == 'both': # email
+                subject = 'Payment denied'
+                recipients = [paid_by]
+                mail.send_email(subject, body, recipients)
+            if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+                time = str(datetime.datetime.now())
+                notif.make_notification(paid_by, body, time)
             
             # update user balances
             u_paid_by = users.find_one({'email': paid_by})
@@ -79,11 +92,11 @@ def lambda_handler(event, context):
                 new_val = {'expenses': group['expenses']}
                 groups.update_one({'uuid': group_id}, {'$set': new_val})
             else: # if expense still exists, check if user still owes on it, if not add user entry to expenses
-                if og_expense['expenses'][paid_by] is None: # user paid in full
-                    og_expense['expenses'][paid_by] = amount
+                if og_expense['users'][paid_by] is None: # user paid in full
+                    og_expense['users'][paid_by] = amount
                 else: # user paid in part
-                    og_expense['expense'][paid_by] += amount
-                new_val = {'expenses': og_expense['expense']}
+                    og_expense['users'][paid_by] += amount
+                new_val = {'users': og_expense['users']}
                 expenses.update_one({'_id': original_id}, {'$set': new_val})
             
         # remove pending payment

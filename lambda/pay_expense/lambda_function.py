@@ -1,8 +1,12 @@
 import json
 from pymongo import MongoClient
+import bundle.g_password
 import bundle.mongo as mongo
 import bundle.api as api
 from bson.objectid import ObjectId
+import bundle.notification as notif
+import bundle.send as mail
+import datetime
 
 def lambda_handler(event, context):
     token = event['headers']['token']
@@ -86,5 +90,18 @@ def lambda_handler(event, context):
             'paid_to': owner['email']
         }
         pending_expenses.insert_one(pending_expense)
+        
+        # send owner notification
+        notif_pref = users.find_one({'email': owner['email']})['settings']['notification']
+        body = email + ' has paid $' + str(amount) + ' of your expense request ' + \
+                expense['title'] + ' in group ' + group['name'] + '.'
+        if notif_pref == 'only_email' or notif_pref == 'both': # email
+            subject = 'Payment rec'
+            recipients = [owner['email']]
+            mail.send_email(subject, body, recipients)
+        if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+            time = str(datetime.datetime.now())
+            notif.make_notification(owner['email'], body, time)
+            
         
     return api.build_capsule(response)

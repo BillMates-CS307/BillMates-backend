@@ -1,8 +1,12 @@
 import json
 from pymongo import MongoClient
+import bundle.g_password
 import bundle.mongo as mongo
 import bundle.api as api
 from bson.objectid import ObjectId
+import bundle.send as mail
+import bundle.notification as notif
+import datetime
 
 def lambda_handler(event, context):
     token = event['headers']['token']
@@ -45,6 +49,22 @@ def lambda_handler(event, context):
                     g_users.append(u['email'])
         
         # send notification to all users
+        for us in g_users:
+            balance = -69.0
+            u = users.find_one({'email': us})
+            for g in u['groups']:
+                if g['group_id'] == group_id:
+                    balance = g['balance']
+            notif_pref = u['settings']['notification']
+            body = group['manager'] + ' has deleted group ' + group['name'] + ' which you are a member of.' + \
+                    'Your outstanding balance in the group was $' + str(balance) + '.'
+            if notif_pref == 'only_email' or notif_pref == 'both': # email
+                subject = 'Group deleted'
+                recipients = [u['email']]
+                mail.send_email(subject, body, recipients)
+            if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+                time = str(datetime.datetime.now())
+                notif.make_notification(u['email'], body, time)
         
         # delete group from groups:
         groups.delete_one({'uuid': group_id})
@@ -52,10 +72,11 @@ def lambda_handler(event, context):
         # delete group from users:
         for e in g_users:
             u = users.find_one({'email': e})
+            temp_groups = []
             for g in u['groups']:
-                if g['group_id'] == group_id:
-                    del g
-            new_val = {'groups': u['groups']}
+                if not g['group_id'] == group_id:
+                    temp_groups.append(g)
+            new_val = {'groups': temp_groups}
             users.update_one({'email': e}, {'$set': new_val})
         
         # delete expenses
