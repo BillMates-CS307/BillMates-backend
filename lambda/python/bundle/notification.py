@@ -1,5 +1,5 @@
 
-from mongo import get_database
+from bundle.mongo import get_database
 from bson.objectid import ObjectId
 
 def make_notification(user_email: str, message: str, time: str):
