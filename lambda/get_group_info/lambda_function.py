@@ -4,6 +4,7 @@ import bundle.mongo as mongo
 import bundle.api as api
 from bson.objectid import ObjectId
 
+
 def lambda_handler(event, context):
     token = event['headers']['token']
     response = {}
@@ -30,9 +31,9 @@ def lambda_handler(event, context):
             return api.build_capsule(response)
         response['get_success'] = True
         
-        g_requests = groups.find_one({'uuid': group_id})['expenses']
-        g_members = groups.find_one({'uuid': group_id})['members']
-        name = groups.find_one({'uuid': group_id})['name']
+        g_requests = group['expenses']
+        g_members = group['members']
+        name = group['name']
         requests = []
         members = {}
         for r in g_requests:
@@ -44,15 +45,18 @@ def lambda_handler(event, context):
         response['members'] = members
         response['expenses'] = requests
         response['name'] = name
+        response['manager'] = str(group['manager'])
         user_groups = users.find_one({'email': email})['groups']
         for g in user_groups:
             if g['group_id'] == group_id:
                 response['balance'] = g['balance']
                 
-        response['pending'] = list(pending.find({'paid_to': email}, {'_id': 0})) # returns a cursor
+        response['pending'] = list(pending.find({'paid_to': email})) # returns a cursor
+        temp_list = []
         for p in response['pending']:
             if p['group_id'] == group_id:
                 p['expense_id'] = str(p['expense_id']) 
-            else:
-                del p
+                p['_id'] = str(p['_id'])
+                temp_list.append(p)
+        response['pending'] = temp_list
     return api.build_capsule(response)
