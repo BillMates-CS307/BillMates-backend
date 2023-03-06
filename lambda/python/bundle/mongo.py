@@ -26,7 +26,7 @@ def query_user(user_data: dict, get_collection: bool):
 
 def query_table(table_name, query: dict):
     db = get_database()
-    table = db['table_name']
+    table = db[table_name]
     out = table.find_one(query)
     if table_name == 'users':
         out = clean_up_user(out, db)
@@ -71,12 +71,12 @@ def clean_up_notification(user, db):
 def clean_up_pending(user, db):
     return user
 
-def lazy_delete(list, ref_list, key_field):
-    for f_key in list:
+def lazy_delete(working_list, ref_list, key_field):
+    for f_key in working_list:
         exists = False
         for ref in ref_list:
             if ref[key_field] == f_key:
                 exists = True
         if not exists:
-            list.remove(f_key)
-    return list
+            working_list.remove(f_key)
+    return working_list
