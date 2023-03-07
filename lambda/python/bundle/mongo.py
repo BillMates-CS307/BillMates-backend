@@ -42,6 +42,10 @@ def query_table(table_name, query: dict):
         out = clean_up_pending(out, db)
     return out
 
+# values defining keys for tables with multiple options
+user_key = 'email'
+group_key = 'uuid'
+
 #   users: {
 #       _id: ObjectID (K),
 #       email: String (K),
@@ -56,9 +60,9 @@ def clean_up_user(user, db):
     expenses = list(db['expenses'].find())
     groups = list(db['groups'].find())
     notifs = list(db['notifications'].find())
-    user['expenses'] = lazy_delete(user['expenses'], expenses, '_id')
-    user['groups'] = lazy_delete(user['groups'], groups, 'uuid') # could be _id
-    user['notifications'] = lazy_delete(user['notifications'], notifs, '_id')
+    user['expenses'] = lazy_delete(user, 'expenses', 'users', user_key, expenses, '_id', db)
+    user['groups'] = lazy_delete(user, 'groups', 'users', user_key, groups, group_key, db) # user_key is email, group_key is uuid
+    user['notifications'] = lazy_delete(user, 'notifications', 'users', user_key, notifs, '_id', db)
     return user
 
 #   groups: {
@@ -76,27 +80,28 @@ def clean_up_group(group, db):
     users = list(db['users'].find())
     expenses = list(db['expenses'].find())
     pending_payments = list(db['pending_paid_expenses'].find())
-    user_list = []
-    for t in group['members']:
-        user_list.add(t[0])
-    user_list = lazy_delete(user_list, users, 'email') # could be _id
-    for i in range(0, len(group['members']) - 1):
-        group['members'][i][0] = user_list[i]
-    group['expenses'] = lazy_delete(group['expenses'], expenses, '_id')
-    group['pending_payments'] = lazy_delete(group['pending_payments'], pending_payments, '_id')
+    group['members'] = lazy_delete(group, 'members', 'groups', group_key, users, user_key, db) # group_key is uuid, user_key is email
+    group['expenses'] = lazy_delete(group, 'expenses', 'groups', group_key, expenses, '_id', db)
+    group['pending_payments'] = lazy_delete(group, 'pending_payments', 'groups', group_key, pending_payments, '_id', db)
     return group
 
 #   expenses: {
 #       _id: ObjectID (K),
 #       owner: ObjectID or String (FK), -- *
 #       users: (ObjectID or String, int (amount))[], (FK) -- *
-#       group_id: ObjectID or String (FK), -- *
+#       group_id: ObjectID or String (FK), -- delete expense if group deleted
 #       title: String,
 #       amount: int
 #   }
-# *how should we handle the users or group associated to an expense being deleted?
+# *how should we handle the users associated to an expense being deleted?
 def clean_up_expense(expense, db):
-    # see *
+    groups = list(db['groups'].find())
+    # scuffed but should work
+    obj = {'list': [expense['group_id']]}
+    group_list = lazy_delete(obj, 'list', '', '', groups, group_key, db, update=False) # group_key is uuid
+    if len(group_list) == 0:
+        db['expenses'].delete_one({'_id': expense['_id']})
+        expense = None
     return expense
 
 #   notification: {
@@ -110,8 +115,8 @@ def clean_up_expense(expense, db):
 def clean_up_notification(notif, db):
     users = list(db['users'].find())
     # scuffed but should work
-    user_list = [notif['user']]
-    user_list = lazy_delete(user_list, users, 'email') # could be _id
+    obj = {'list': [notif['user']]}
+    user_list = lazy_delete(obj, 'list', '', '', users, user_key, db, update=False) # user_key is email
     if len(user_list) == 0:
         db['notifications'].delete_one({'_id': notif['_id']})
         notif = None
@@ -120,22 +125,46 @@ def clean_up_notification(notif, db):
 #   pending_paid_expenses: {
 #       _id: ObjectID (K)
 #       original_id: ObjectID (FK, kind of)
-#       group_id: ObjectID or String (FK) -- *
+#       group_id: ObjectID or String (FK) -- delete pending payment if group deleted
 #       paid_to: ObjectID or String (FK) -- *
 #       paid_by: ObjectID or String (FK -- *
 #       amount: int
 #   }
 # *see asterisk in clean_up_expense
-def clean_up_pending(user, db):
-    # see *
-    return user
-
-def lazy_delete(working_list, ref_list, key_field):
+def clean_up_pending(pending, db):
+    groups = list(db['groups'].find())
+    # scuffed but should work
+    obj = {'list': [pending['group_id']]}
+    group_list = lazy_delete(obj, 'list', '', '', groups, group_key, db, update=False) # group_key is uuid
+    if len(group_list) == 0:
+        db['pending_paid_expenses'].delete_one({'_id': pending['_id']})
+        pending = None
+    return pending
+    
+# object is local value of an item in collection table
+# list_field is the field of object that is the list of foreign keys
+# table is the table that is being worked on
+# obj_key_field is the field of object that is its key
+# ref_list is the list of local objects from a different table that the list in list_field is being compared to
+# key_field is the field that cotains the keys of ref_list
+# db is the database
+# update is whether or not the working table gets updated in the database, default true
+# set to false if the entire object must be deleted, not just a field of it
+# if update is false, table and obj_key_field can be blank
+def lazy_delete(object, list_field, table, obj_key_field, ref_list, key_field, db, update=True):
+    working_list = object[list_field]
+    changed = False
+    new_val = {}
     for f_key in working_list:
         exists = False
         for ref in ref_list:
             if ref[key_field] == f_key:
                 exists = True
         if not exists:
+            changed = True
             working_list.remove(f_key)
+            if update:
+                new_val = {list_field: working_list}
+    if changed and update:       
+        db[table].update_one({obj_key_field: object[obj_key_field]}, {'$set': new_val})
     return working_list
