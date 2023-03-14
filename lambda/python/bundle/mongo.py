@@ -153,6 +153,7 @@ def clean_up_pending(pending, db):
 # if update is false, table and obj_key_field can be blank
 def lazy_delete(object, list_field, table, obj_key_field, ref_list, key_field, db, update=True):
     working_list = object[list_field]
+    working_list_copy = working_list.copy()
     changed = False
     new_val = {}
     for f_key in working_list:
@@ -162,9 +163,9 @@ def lazy_delete(object, list_field, table, obj_key_field, ref_list, key_field, d
                 exists = True
         if not exists:
             changed = True
-            working_list.remove(f_key)
+            working_list_copy.remove(f_key)
             if update:
-                new_val = {list_field: working_list}
+                new_val = {list_field: working_list_copy}
     if changed and update:       
         db[table].update_one({obj_key_field: object[obj_key_field]}, {'$set': new_val})
-    return working_list
+    return working_list_copy
