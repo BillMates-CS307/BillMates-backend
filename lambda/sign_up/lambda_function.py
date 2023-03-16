@@ -20,7 +20,7 @@ def lambda_handler(event, context):
         name = parameters['name']
         
         users = db['users']
-        user = mongo.query_user({'email': email}, False)
+        user = mongo.query_table('users', {'email': email}, db)
         response['signup_success'] = user == None
         if response['signup_success']:
             new_user = {
@@ -30,6 +30,7 @@ def lambda_handler(event, context):
                 'name': name,
                 'settings': {'notification': 'both'},
                 'notifications': [],
+                'expenses': [],
                 'attempts': 0
             }
             users.insert_one(new_user)

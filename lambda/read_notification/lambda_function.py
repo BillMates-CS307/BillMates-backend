@@ -4,9 +4,9 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 from bson.objectid import ObjectId
 
-def check_database(data: dict, notifs) -> bool:
+def check_database(data: dict, db) -> bool:
     query = {'_id' : ObjectId(data['object_id'])}
-    return notifs.find_one(query)
+    return mongo.query_table('notifications', query, db)
     
 def lambda_handler(event, context):
        
@@ -22,8 +22,8 @@ def lambda_handler(event, context):
     
     if response["token_success"]:
         db = mongo.get_database()
+        notif = check_database(payload, db)
         notifs = db['notifications']
-        notif = check_database(payload, notifs)
         if notif != None:
             notifs.update_one(notif, {"$set" : {"isread": True}})
             response['read_success'] = True

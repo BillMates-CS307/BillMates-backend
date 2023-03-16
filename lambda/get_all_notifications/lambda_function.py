@@ -4,8 +4,8 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 from bson.objectid import ObjectId
 
-def check_database(query: dict, collection) -> bool:
-    return collection.find_one(query)
+def check_database(query: dict, db) -> bool:
+    return mongo.query_table('users', query, db)
     
 def lambda_handler(event, context):
        
@@ -21,27 +21,28 @@ def lambda_handler(event, context):
     
     if response["token_success"]:
         db = mongo.get_database()
-        notifs = db['notifications']
-        users = db['users']
         query_user = {'email' : payload['email']}
-        user = check_database(query_user, users)
+        user = check_database(query_user, db)
+        users = db['users']
         notif_arr = user['notifications']
-        new_arr = user["notifications"].copy()
+        # removing the lazy deletion in this function as mongo.query_table() takes care of it
+        #new_arr = user["notifications"].copy()
         out_list = []
         for notif in notif_arr:
-            info = notifs.find_one({"_id" : ObjectId(notif)})
-            if info != None:
-                my_dict = {
-                    "_id" : str(info['_id']),
-                    "sender" : info['sender'],
-                    "message" : info['message'],
-                    "time" : str(info['time']),
-                    "isread" : info['isread']
-                }
-                out_list.append(my_dict)
-            else:
-                new_arr.remove(notif)
-        users.update_one(user, {"$set" : {"notifications": new_arr}})
+            info = mongo.query_table('notifications', {"_id" : ObjectId(notif)}, db)
+            #if info != None:
+            my_dict = {
+                "_id" : str(info['_id']),
+                "user": str(info['user']),
+                "sender" : info['sender'],
+                "message" : info['message'],
+                "time" : str(info['time']),
+                "isread" : info['isread']
+            }
+            out_list.append(my_dict)
+            #else:
+                #new_arr.remove(notif)
+        # users.update_one(user, {"$set" : {"notifications": new_arr}})
         response['notifications'] = out_list
     return api.build_capsule(response)
             

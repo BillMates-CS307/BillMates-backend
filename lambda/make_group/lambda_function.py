@@ -4,9 +4,9 @@ import bundle.mongo as mongo
 import bundle.api as api
 import uuid as uu
 
-def check_database(data: dict, groups) -> bool:
+def check_database(data: dict, db) -> bool:
     query = {'manager':data['manager'], 'name' : data['name']}
-    return groups.find_one(query) != None
+    return mongo.query_table('groups', query, db) != None
     
 def lambda_handler(event, context):
     # Parameters
@@ -22,8 +22,8 @@ def lambda_handler(event, context):
     if response['token_success']:
         if api.check_body(["name", "manager"], payload):
             db = mongo.get_database()
-            groups = db['groups']
-            if not check_database(payload, groups):
+            if not check_database(payload, db):
+                groups = db['groups']
                 group_id = str(uu.uuid4())
                 group_obj = {
                     "name" : payload['name'],
@@ -31,6 +31,7 @@ def lambda_handler(event, context):
                     "members" : [payload['manager']],
                     "manager" : payload['manager'],
                     "expenses" : [],
+                    "pending_payments": [],
                     "calendar" : [],
                     "shopping list" : []
                 }
@@ -38,13 +39,9 @@ def lambda_handler(event, context):
                 response['make_group_success'] = True
                 
                 # add group to manager's groups field
+                manager = mongo.query_table('users', {'email': payload['manager']}, db)
                 users = db['users']
-                manager = users.find_one({'email': payload['manager']})
-                manager['groups'].append({
-                    'group_id': group_id,
-                    'name': payload['name'],
-                    'balance': 0
-                })
+                manager['groups'].append(group_id)
                 new_val = {'groups': manager['groups']}
                 users.update_one({'email': payload['manager']}, {'$set': new_val})
             else:
