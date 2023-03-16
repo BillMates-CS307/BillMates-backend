@@ -27,11 +27,11 @@ def query_user(user_data: dict, get_collection: bool):
 # calculates user balance in a given group
 # parameters: user_id (string or ObjectId)
 #             group_id (string or ObjectId)
+#             db (database from get_database())
 # returns double (only negative if user not found in group's user field)
 # do not call this if the the database has been modified since retrieving group object
 # only way to store balance in db that wouldn't be problematic would be to make another
-def user_balance_in_group(user_id, group_id):
-    db = get_database()
+def user_balance_in_group(user_id, group_id, db):
     expenses = list(db['expenses'].find())
     user_group_balance = 0
     for e in expenses:
@@ -45,8 +45,8 @@ def user_balance_in_group(user_id, group_id):
     return user_group_balance
 
 
-def query_table(table_name, query: dict):
-    db = get_database()
+# name of table being queried on, query, database from get_database()
+def query_table(table_name, query: dict, db):
     table = db[table_name]
     out = table.find_one(query)
     if out is None:

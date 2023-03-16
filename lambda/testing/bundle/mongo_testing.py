@@ -7,7 +7,7 @@ from bson import ObjectId
 from pymongo import MongoClient
 
 def main():
-    balance_test()
+    query_expense_test()
 
 def balance_test():
     db = mongo.get_database() 
@@ -120,8 +120,60 @@ def query_group_test():
     print(obj)
 
 def query_expense_test():
-    obj = mongo.query_table('expense', {'_id': 'something'})
-    print(obj)
+    db = mongo.get_database() 
+    # creating temporary items
+    temp_group_uuid = 'new_uuid'
+    temp_group = db['groups'].insert_one({'uuid': temp_group_uuid}).inserted_id
+    # the user being inserted
+    input_expense_valid = {
+        'title': 'test_expense',
+        'owner': 'someone',
+        'amount': 5,
+        'users': [['someone else', 5]],
+        'group_id': temp_group_uuid
+    }
+    input_expense_invalid = {
+        'title': 'test_expense2',
+        'owner': 'someone',
+        'amount': 5,
+        'users': [['someone else', 5]],
+        'group_id': 'invalid uuid'
+    }
+    test_expense_valid = db['expenses'].insert_one(input_expense_valid).inserted_id
+    test_expense_invalid = db['expenses'].insert_one(input_expense_invalid).inserted_id
+    # everything from here on until the item deletion in a try catch so
+    # that if an error occurs the items still get deleted
+    try:
+        # the returned user and the expected result
+        actual_valid = mongo.query_table('expenses', {'_id': test_expense_valid})
+        actual_invalid = mongo.query_table('expenses', {'_id': test_expense_invalid})
+        expected_valid = input_expense_valid
+        expected_invalid = None
+        # verifying correctness
+        if not actual_valid == expected_valid and actual_invalid == expected_invalid:
+            print('QUERY_USER FAILURE')
+            if actual_valid != expected_valid:
+                print('actual:')
+                print(actual_valid)
+                print('expected')
+                print(expected_valid)
+            else:
+                print('invalid is null: ' + str(actual_invalid is None))
+        else:
+            print('query_user success')
+    # if an error occurs print stack trace
+    except Exception as e:
+        print('uh oh you got an error')
+        try:
+            traceback.print_exc(e)
+        except:
+            print('?')
+    # delete inserted test items
+    db['groups'].delete_one({'_id': temp_group})
+    if not actual_valid is None:
+        db['expenses'].delete_one({'_id': test_expense_valid})
+    if not actual_invalid is None:
+        db['expenses'].delete_one({'_id': test_expense_invalid})
 
 def query_notification_test():
     obj = mongo.query_table('groups', {'_id': 'something'})
