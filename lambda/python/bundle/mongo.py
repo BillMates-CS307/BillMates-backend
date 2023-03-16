@@ -24,6 +24,27 @@ def query_user(user_data: dict, get_collection: bool):
         return user
     return (user, users)
 
+# calculates user balance in a given group
+# parameters: user_id (string or ObjectId)
+#             group_id (string or ObjectId)
+# returns double (only negative if user not found in group's user field)
+# do not call this if the the database has been modified since retrieving group object
+# only way to store balance in db that wouldn't be problematic would be to make another
+def user_balance_in_group(user_id, group_id):
+    db = get_database()
+    expenses = list(db['expenses'].find())
+    user_group_balance = 0
+    for e in expenses:
+        if e['group_id'] == group_id:
+            if e['owner'] == user_id:
+                user_group_balance += e['amount']
+            else:
+                for u in e['users']:
+                    if u[0] == user_id:
+                        user_group_balance -= u[1]
+    return user_group_balance
+
+
 def query_table(table_name, query: dict):
     db = get_database()
     table = db[table_name]
@@ -69,7 +90,7 @@ def clean_up_user(user, db):
 #       _id: ObjectID (K),
 #       uuid: String (K),
 #       name: String
-#       members: (ObjectID or String (FK), int (balance))[], -- must check users
+#       members: (ObjectID or String (FK)[], -- must check users
 #       expenses: ObjectID[] (FK), -- must check expenses
 #       pending_payments: ObjectID[] (FK) -- must check pending_payments
 #       manager: ObjectID or String (FK), -- what to do if manager deletes account?

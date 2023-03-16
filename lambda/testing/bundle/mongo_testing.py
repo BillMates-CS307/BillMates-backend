@@ -7,7 +7,46 @@ from bson import ObjectId
 from pymongo import MongoClient
 
 def main():
-    query_user_test()
+    balance_test()
+
+def balance_test():
+    db = mongo.get_database() 
+    # creating temporary items
+    temp_group_id = db['groups'].insert_one({'uuid': 'new_uuid'}).inserted_id
+    temp_group_uuid = db['groups'].find_one({'_id': temp_group_id})['uuid']
+    temp_user1 = db['users'].insert_one({'email': '1'}).inserted_id
+    temp_user2 = db['users'].insert_one({'email': '2'}).inserted_id
+    temp_user3 = db['users'].insert_one({'email': '3'}).inserted_id
+    # expense
+    input_expense = {
+        'title': 'test_expense',
+        'amount': 3,
+        'owner': '1',
+        'group_id': temp_group_uuid,
+        'users': [('2', 3)]
+    }
+    test_expense = db['expenses'].insert_one(input_expense).inserted_id
+    try:
+        user_1_balance = mongo.user_balance_in_group('1', temp_group_uuid)
+        user_2_balance = mongo.user_balance_in_group('2', temp_group_uuid)
+        user_3_balance = mongo.user_balance_in_group('3', temp_group_uuid)
+        if not (user_1_balance == 3 and user_2_balance == -3):
+            print('USER_GROUP_BALANCE FAILURE\nactual:')
+            print('user_1: ' + str(user_1_balance) + ', user_2: ' + str(user_2_balance) + ', user_3: ' + str(user_3_balance))
+            print('actual:\nuser_1: 10, user_2: -3, user_3: 7')
+        else:
+            print('user_group_balance success')
+    except Exception as e:
+        print('uh oh you got an error')
+        try:
+            traceback.print_exc(e)
+        except:
+            print('?')
+    db['users'].delete_one({'email': '1'})
+    db['users'].delete_one({'email': '2'})
+    db['users'].delete_one({'email': '3'})
+    db['groups'].delete_one({'uuid': temp_group_uuid})
+    db['expenses'].delete_one({'_id': test_expense})
 
 
 def query_user_test():
@@ -66,7 +105,10 @@ def query_user_test():
     # if an error occurs print stack trace
     except Exception as e:
         print('uh oh you got an error')
-        traceback.print_exc(e)
+        try:
+            traceback.print_exc(e)
+        except:
+            print('?')
     # delete inserted test items
     db['groups'].delete_one({'_id': temp_group})
     db['notifications'].delete_one({'_id': temp_notif})
