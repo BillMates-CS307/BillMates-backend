@@ -4,9 +4,9 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 from bson.objectid import ObjectId
 
-def check_database(data: dict, notifs) -> dict:
+def check_database(data: dict, db) -> dict:
     query = {'_id' : ObjectId(data['object_id'])}
-    return notifs.find_one(query)
+    return mongo.query_table('notifications', query, db)
 
 def del_database(data: dict, notifs) -> None:
     query = {'_id' : ObjectId(data['object_id'])}
@@ -26,8 +26,8 @@ def lambda_handler(event, context):
     
     if response["token_success"]:
         db = mongo.get_database()
+        notif = check_database(payload, db)
         notifs = db['notifications']
-        notif = check_database(payload, notifs)
         response['delete_success'] = notif != None
         if response['delete_success']:
             del_database(payload, notifs)

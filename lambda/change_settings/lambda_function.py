@@ -25,8 +25,8 @@ def lambda_handler(event, context):
         parameters = json.loads(event['body'])
         email = parameters['email']
         # retrieve collection and user
+        user = mongo.query_table('users', {'email': email}, db)
         users = db['users']
-        user = users.find_one({'email': email})
         # check if new password and name are provided
         password = None
         name = None
@@ -41,17 +41,12 @@ def lambda_handler(event, context):
         if 'notification' in parameters:
             notification = parameters['notification']
         
-        if user is None:
+        if user == None:
             # if no user has email, user doesn't exist and return failure
             response['change_success'] = False
         else:
             # update necessary fields
             query = {'email': email}
-            # new_val = {}
-            # settings = users.find(query, 'settings')
-            # if 'notification' not in settings:
-            #     new_val['notifications' = 'both']
-            #     users.update_one(query, {'$set': new_val})
             new_val = {}
             if not password == None:
                 new_val['password'] = password

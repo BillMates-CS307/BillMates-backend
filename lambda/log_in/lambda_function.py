@@ -2,22 +2,8 @@ import json
 import bundle.api as api
 from pymongo import MongoClient
 import bundle.mongo as mongo
-import smtplib
-from g_password import get_password
-from email.mime.text import MIMEText
-
-def send_email(subject, body, sender, recipients, password):
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = ', '.join(recipients)
-    smtp_server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-    smtp_server.login(sender, password)
-    smtp_server.sendmail(sender, recipients, msg.as_string())
-    smtp_server.quit()
-
-body = "Someone has been attempting to log into your account. Please make sure you are using a secure password."
-sender = "billmatesmail@gmail.com"
+import bundle.send as send
+import bundle.thread as thread
 
 def check_database(data: dict) -> bool:
     query = {'email':data['email']}
@@ -37,7 +23,9 @@ def lambda_handler(event, context):
     
     # Match against database
     if response["token_success"]:
-        user, users = check_database(payload)
+        db = mongo.get_database()
+        user = mongo.query_table('users', {'email': payload['email']}, db)
+        users = db['users']
         response['login_success'] = (user != None) and (user['password'] == payload['password'])
         attempts = {"$set": {"attempts": 0} }
         if response['login_success']:
@@ -53,7 +41,10 @@ def lambda_handler(event, context):
                 new_attempts = user['attempts'] + 1
                 response['user_data'] = {'attempts' : new_attempts}
                 if new_attempts >= 3:
-                    send_email("Suspicious Activity | BillMates", body, sender, [user['email']], get_password())
+                    args = ("Suspicious Activity | BillMates", \
+                    "Someone has been attempting to log into your account. Please make sure you are using a secure password.", \
+                    [user['email']])
+                    thread.fire(send.send_email, args)
                     users.update_one(user, {"$set": { "attempts": 0} })
                 else:
                     users.update_one(user, {"$set": { "attempts": user['attempts'] + 1} })

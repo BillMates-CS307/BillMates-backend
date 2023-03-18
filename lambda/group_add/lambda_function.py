@@ -3,9 +3,9 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 import bundle.api as api
 
-def check_database(data: dict, groups) -> bool:
+def check_database(data: dict, db) -> bool:
     query = {'uuid' : data['uuid']}
-    return groups.find_one(query)
+    return mongo.query_table('groups', query, db)
     
 def lambda_handler(event, context):
     # Parameters
@@ -21,8 +21,8 @@ def lambda_handler(event, context):
     if response["token_success"]:
         if api.check_body(["email", "uuid"], payload):
             db = mongo.get_database()
+            group = check_database(payload, db)
             groups = db['groups']
-            group = check_database(payload, groups)
             if group != None:
                 if not payload['email'] in group['members']:
                     new_arr = list(group['members'])
@@ -31,14 +31,15 @@ def lambda_handler(event, context):
                     response['group_add_success'] = True
                     
                     # adding group to users group field
+                    user = mongo.query_table('users', {'email': payload['email']}, db)
+                    if user is None:
+                        response['error'] = 'invalid email'
+                        api.build_capsule(response)
+                        return
                     users = db['users']
-                    user_groups = users.find_one({'email': payload['email']})['groups']
-                    new_group = {}
-                    new_group['group_id'] = payload['uuid']
-                    new_group['name'] = group['name']
-                    new_group['balance'] = 0
-                    user_groups.append(new_group)
-                    new_val = {'groups': user_groups}
+                    new_group = payload['uuid']
+                    user['groups'].append(new_group)
+                    new_val = {'groups': user['groups']}
                     users.update_one({'email': payload['email']}, {'$set': new_val})
                 else:
                     response['group_add_success'] = False
