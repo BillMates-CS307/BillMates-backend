@@ -4,9 +4,9 @@ from pymongo import MongoClient
 import bundle.mongo as mongo
 from bson.objectid import ObjectId
 
-def check_database(data: dict, users) -> bool:
+def check_database(data: dict, db) -> bool:
     query = {'email' : data['email']}
-    return users.find_one(query)
+    return mongo.query_table('users', query, db)
     
 def lambda_handler(event, context):
        
@@ -22,17 +22,16 @@ def lambda_handler(event, context):
     
     if response["token_success"]:
         db = mongo.get_database()
-        users = db['users']
-        user = check_database(payload, users)
+        user = check_database(payload, db)
         if user != None:
             response['user'] = {
-                'sender': user['email'],
+                'name' : user['name'],
                 'groups': user['groups'],
                 'settings': user['settings'],
                 'attempts' : user['attempts']
              }
         else:
             response['user'] = None
-    
+
     return api.build_capsule(response)
             

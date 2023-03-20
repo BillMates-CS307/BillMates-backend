@@ -18,10 +18,6 @@ def lambda_handler(event, context):
     if response['token_success']:
         # retrieving collections
         db = mongo.get_database()
-        expenses = db['expenses']
-        users = db['users']
-        groups = db['groups']
-        pending_expenses = db['pending_paid_expenses']
 
         # retrieving parameters
         parameters = json.loads(event['body'])
@@ -31,32 +27,27 @@ def lambda_handler(event, context):
         group_id = parameters['group_id']
         
         # group_exists
-        if groups.find_one({'uuid': group_id}) is None:
+        group = mongo.query_table('groups', {'uuid': group_id}, db)
+        if group is None:
             response['delete_success'] = False
             return api.build_capsule(response)
         response['delete_success'] = True
         
         # getting objects
-        group = groups.find_one({'uuid': group_id})
-        g_expenses = list(expenses.find({'group_id': group_id}))
-        g_payments = list(pending_expenses.find({'group_id': group_id}))
-        users_list = list(users.find())
+        users_list = list(db['users'].find())
         g_users = []
         for u in users_list:
-            u_groups = u['groups']
-            for g in u_groups:
-                if g['group_id'] == group_id:
-                    g_users.append(u['email'])
+            if group_id in u['groups']:
+                g_users.append(u['email'])
         
         # send notification to all users
         for us in g_users:
             balance = -69.0
-            u = users.find_one({'email': us})
-            for g in u['groups']:
-                if g['group_id'] == group_id:
-                    balance = g['balance']
+            u = mongo.query_table('users', {'email': us}, db)
+            balance = mongo.user_balance_in_group(us, group_id, db)
             notif_pref = u['settings']['notification']
-            body = group['manager'] + ' has deleted group ' + group['name'] + ' which you are a member of.' + \
+            n_name = mongo.query_table('users', {'email': group['manager']}, db)['name']
+            body = n_name + ' has deleted group ' + group['name'] + ' which you are a member of. ' + \
                     'Your outstanding balance in the group was $' + str(balance) + '.'
             if notif_pref == 'only_email' or notif_pref == 'both': # email
                 subject = 'Group deleted'
@@ -67,25 +58,7 @@ def lambda_handler(event, context):
                 notif.make_notification(u['email'], body, time)
         
         # delete group from groups:
-        groups.delete_one({'uuid': group_id})
-        
-        # delete group from users:
-        for e in g_users:
-            u = users.find_one({'email': e})
-            temp_groups = []
-            for g in u['groups']:
-                if not g['group_id'] == group_id:
-                    temp_groups.append(g)
-            new_val = {'groups': temp_groups}
-            users.update_one({'email': e}, {'$set': new_val})
-        
-        # delete expenses
-        for e in g_payments:
-            expenses.delete_one({'_id': e['_id']})
-        
-        # delete payments
-        for p in g_expenses:
-            pending_expenses.delete_one({'_id': p['_id']})
+        db['groups'].delete_one({'uuid': group_id})
         
         
     return api.build_capsule(response)

@@ -14,9 +14,6 @@ def lambda_handler(event, context):
 
     if response['token_success']:
         db = mongo.get_database()
-        groups = db['groups']
-        users = db['users']
-        expenses = db['expenses']
         pending = db['pending_paid_expenses']
         
         # retrieving parameters
@@ -24,7 +21,7 @@ def lambda_handler(event, context):
         
         group_id = parameters['group_id']
         email = parameters['email']
-        group = groups.find_one({'uuid': group_id})
+        group = mongo.query_table('groups', {'uuid': group_id}, db)
         
         if group is None:
             response['get_success'] = False
@@ -37,21 +34,17 @@ def lambda_handler(event, context):
         requests = []
         members = {}
         for r in g_requests:
-            expense = expenses.find_one({'_id': r})
+            expense = mongo.query_table('expenses', {'_id': r}, db)
             expense['_id'] = str(expense['_id'])
             requests.append(expense)
         for m in g_members:
-            members[m] = users.find_one({'email': m})['name']
+            members[m] = mongo.query_table('users', {'email': m}, db)['name']
         response['members'] = members
         response['expenses'] = requests
         response['name'] = name
         response['manager'] = str(group['manager'])
-        user_groups = users.find_one({'email': email})['groups']
-        for g in user_groups:
-            if g['group_id'] == group_id:
-                response['balance'] = g['balance']
-                
-        response['pending'] = list(pending.find({'paid_to': email})) # returns a cursor
+        response['balance'] = mongo.user_balance_in_group(email, group_id, db)
+        response['pending'] = list(pending.find({'paid_to': email}))
         temp_list = []
         for p in response['pending']:
             if p['group_id'] == group_id:
