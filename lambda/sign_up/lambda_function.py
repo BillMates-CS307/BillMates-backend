@@ -19,8 +19,7 @@ def lambda_handler(event, context):
         password = parameters['password']
         name = parameters['name']
         
-        users = db['users']
-        user = mongo.query_table('users', {'email': email}, db)
+        user, users = mongo.query_user({'email': email}, True)
         response['signup_success'] = user == None
         if response['signup_success']:
             new_user = {
