@@ -39,11 +39,8 @@ def lambda_handler(event, context):
                 response['make_group_success'] = True
                 
                 # add group to manager's groups field
-                manager = mongo.query_table('users', {'email': payload['manager']}, db)
-                users = db['users']
-                manager['groups'].append(group_id)
-                new_val = {'groups': manager['groups']}
-                users.update_one({'email': payload['manager']}, {'$set': new_val})
+                manager, users = mongo.query_user({'email': payload['manager']}, True)
+                users.update_one({'email' : payload['manager']}, {"$push": group_id})
             else:
                 response['make_group_success'] = False
         else: 
