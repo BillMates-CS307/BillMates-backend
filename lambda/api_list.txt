@@ -193,3 +193,14 @@ read_notification:
         = {'token_success' : true, 'read_success' : true}
     IF (token is correct, object_id is invalid)
         = {'token_success' : true, 'read_success' : false}
+
+delete_user:
+    URL: https://s4m26xzazywekzmwbz2jsoikhq0tcfth.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email was verified):
+        = {'token_success' : true, 'delete_success' : true}
