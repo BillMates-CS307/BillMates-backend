@@ -39,9 +39,10 @@ def user_balance_in_group(user_id, group_id, db):
             if e['owner'] == user_id:
                 user_group_balance += e['amount']
             else:
-                for u in e['users']:
-                    if u[0] == user_id:
-                        user_group_balance -= u[1]
+                if query_table('users', e['owner'], db) != None:
+                    for u in e['users']:
+                        if u[0] == user_id:
+                            user_group_balance -= u[1]
     return user_group_balance
 
 
@@ -75,7 +76,7 @@ group_key = 'uuid'
 #       name: String,
 #       settings: {notification: String},
 #       notifications: ObjectID[] (FK), -- must check notifications
-#       all_expenses: ObjectID[] (FK) -- must check expenses  
+#       expenses: ObjectID[] (FK) -- must check expenses  
 #   }
 def clean_up_user(user, db):
     expenses = list(db['expenses'].find())

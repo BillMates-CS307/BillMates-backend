@@ -99,9 +99,9 @@ pay_expense:
 handle_pending_payment:
     URL: https://jfynig6bitelqawn2z4pv7rg440wnwjw.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
-    payload: 'accepted' (boolean), 'expense_id' (string)
+    payload: 'accepted' (boolean), 'payment_id' (string)
     accepted is true is payment accepted, false otherwise
-    expense_id is id of original expense, not of handle_pending_payment
+    payment_id is id of payment, not original expense
     IF (token is incorrect):
         = {'token_success' : false}
     ELSE :
