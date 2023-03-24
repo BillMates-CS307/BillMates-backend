@@ -40,8 +40,7 @@ def lambda_handler(event, context):
                 response['make_group_success'] = True
                 
                 # add group to manager's groups field
-                group_user_obj = {'uuid' : str(group_id), 'name' : payload['name'], 'balance' : 0}
-                db['users'].update_one({'email' : payload['manager']}, {"$push": {"groups" : dict(group_user_obj)}})
+                db['users'].update_one({'email' : payload['manager']}, {"$push": {"groups" : str(group_id)}})
                 
             else:
                 response['make_group_success'] = False

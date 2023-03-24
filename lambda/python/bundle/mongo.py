@@ -45,6 +45,10 @@ def user_balance_in_group(user_id, group_id, db):
                             user_group_balance -= u[1]
     return user_group_balance
 
+# Simple getter to grab group name from group_id (primarily for get_user)
+def get_group_name(group_id: str, db):
+    return db['groups'].find_one({'uuid' : group_id})['name']
+
 
 # name of table being queried on, query, database from get_database()
 def query_table(table_name, query: dict, db):
