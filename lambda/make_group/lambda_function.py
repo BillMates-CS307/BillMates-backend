@@ -33,14 +33,16 @@ def lambda_handler(event, context):
                     "expenses" : [],
                     "pending_payments": [],
                     "calendar" : [],
-                    "shopping list" : []
+                    "shopping list" : [],
+                    "archived" : False
                 }
                 groups.insert_one(group_obj)
                 response['make_group_success'] = True
                 
                 # add group to manager's groups field
-                manager, users = mongo.query_user({'email': payload['manager']}, True)
-                users.update_one({'email' : payload['manager']}, {"$push": group_id})
+                group_user_obj = {'uuid' : str(group_id), 'name' : payload['name'], 'balance' : 0}
+                db['users'].update_one({'email' : payload['manager']}, {"$push": {"groups" : dict(group_user_obj)}})
+                
             else:
                 response['make_group_success'] = False
         else: 
