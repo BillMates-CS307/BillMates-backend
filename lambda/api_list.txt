@@ -204,3 +204,17 @@ delete_user:
         = {'token_success' : false}
     IF (token is correct, email was verified):
         = {'token_success' : true, 'delete_success' : true}
+
+pay_balance:
+    URL: https://ipzfxhr6iinf5lohek6kvva3lu0wirji.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+        group_id: string
+        total: int // note: should be positive
+        expenses: dict {email (string): amount (int)}
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, total is valid):
+        = {'token_success' : true, 'pay_success' : true}

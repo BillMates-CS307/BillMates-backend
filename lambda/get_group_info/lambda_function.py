@@ -37,14 +37,17 @@ def lambda_handler(event, context):
             expense = mongo.query_table('expenses', {'_id': r}, db)
             expense['_id'] = str(expense['_id'])
             requests.append(expense)
+        response['balances'] = {}
         for m in g_members:
             members[m] = mongo.query_table('users', {'email': m}, db)['name']
+            response['balances'][m] = mongo.user_balance_in_group(m, group_id, db)
         response['members'] = members
         response['expenses'] = requests
         response['name'] = name
         response['manager'] = str(group['manager'])
         response['balance'] = mongo.user_balance_in_group(email, group_id, db)
         response['pending'] = list(pending.find({'paid_to': email}))
+        
         temp_list = []
         for p in response['pending']:
             if p['group_id'] == group_id:
