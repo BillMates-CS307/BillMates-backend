@@ -40,7 +40,8 @@ def lambda_handler(event, context):
             'amount': total,
             'users': users,
             'owner': email,
-            'group_id': group_id
+            'group_id': group_id,
+            'is_payout': True
         }
         
         group = mongo.query_table('groups', {'uuid': group_id}, db)
