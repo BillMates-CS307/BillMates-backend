@@ -30,19 +30,19 @@ def lambda_handler(event, context):
         out_list = []
         for notif in notif_arr:
             info = mongo.query_table('notifications', {"_id" : ObjectId(notif)}, db)
-            #if info != None:
-            my_dict = {
-                "_id" : str(info['_id']),
-                "user": str(info['user']),
-                "sender" : info['sender'],
-                "message" : info['message'],
-                "time" : str(info['time']),
-                "isread" : info['isread']
-            }
-            out_list.append(my_dict)
-            #else:
-                #new_arr.remove(notif)
+            if info != None:
+                my_dict = {
+                    "_id" : str(info['_id']),
+                    "user": str(info['user']),
+                    "sender" : info['sender'],
+                    "message" : info['message'],
+                    "time" : str(info['time']),
+                    "isread" : info['isread']
+                }
+                out_list.append(my_dict)
+            # else:
+            #     new_arr.remove(notif)
         # users.update_one(user, {"$set" : {"notifications": new_arr}})
         response['notifications'] = out_list
-    return api.build_capsule(response)
             
+    return api.build_capsule(response)
