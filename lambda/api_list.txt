@@ -229,3 +229,27 @@ get_venmo_auth:
         = {'token_success' : false}
     IF (token is correct, email exists):
         = {'token_success' : true, 'get_success' : true, 'venmo_token': string or null}
+
+contest_expense:
+    URL: https://ctxt572a2yvnjttpbcnloz6gem0fhzmo.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+        expense_id: 
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email and expense exist):
+        = {'token_success' : true, 'contest_success' : true}
+
+remove_expense:
+    URL: https://2xtgpr37spnenjmrurwm26mel40apwki.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        expense_id: string
+        remove: boolean // true if expense being removed, false if group manager denying voiding
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, expense exists):
+        = {'token_success' : true, 'remove_success' : true}

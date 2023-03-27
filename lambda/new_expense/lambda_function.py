@@ -56,7 +56,9 @@ def lambda_handler(event, context):
             'title': title,
             'owner': owner_email,
             'users': users,
-            'amount': total
+            'amount': total,
+            'is_payout': False,
+            'contested': False
         }
         insert_result = db['expenses'].insert_one(new_expense)
         
