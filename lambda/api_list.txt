@@ -218,3 +218,14 @@ pay_balance:
         = {'token_success' : false}
     IF (token is correct, total is valid):
         = {'token_success' : true, 'pay_success' : true}
+
+get_venmo_auth:
+    URL: https://qol6mrbwipmg6r6ksaili6rbx40kpmhk.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email exists):
+        = {'token_success' : true, 'get_success' : true, 'venmo_token': string or null}
