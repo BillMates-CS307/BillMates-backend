@@ -20,9 +20,11 @@ def lambda_handler(event, context):
         db = mongo.get_database()
         user = mongo.query_table('users', {'email': payload['email']}, db)
         if user != None:
-            response['get_success'] = True
-            response['venmo_token'] = user['settings']['venmo_token']
+            response['store_success'] = True
+            user['settings']['venmo_token'] = payload['venmo_token']
+            new_val = {'settings': user['settings']}
+            db['users'].update_one({'email': payload['email']}, {'$set': new_val})
         else:
-            response['get_success'] = False
+            response['store_success'] = False
 
     return api.build_capsule(response)

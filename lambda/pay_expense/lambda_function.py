@@ -26,8 +26,14 @@ def lambda_handler(event, context):
         expense_id = ObjectId(parameters['expense_id'])
         amount = parameters['amount']
         
-        # getting objects
+        # check if expense exists
         expense = mongo.query_table('expenses', {'_id': expense_id}, db)
+        if expense is None:
+            response['pay_success'] = False
+            return api.build_capsule(response)
+        response['pay_success'] = True
+        
+        # getting objects
         group_id = expense['group_id']
         group = mongo.query_table('groups', {'uuid': group_id}, db)
         user = mongo.query_table('users', {'email': email}, db)
@@ -39,12 +45,6 @@ def lambda_handler(event, context):
         for i in range(0, len(expense['users']) - 1):
             if expense['users'][i][0] == email:
                 user_index = i
-        
-        # check if amount is greater than amount owed
-        if amount > expense['users'][user_index][1]:
-            response['pay_success'] = False
-            return api.build_capsule(response)
-        response['pay_success'] = True
         
         # update/delete expense
         if amount < expense['users'][user_index][1]: # if the expense is not being paid in full
@@ -73,7 +73,11 @@ def lambda_handler(event, context):
             'paid_by': email,
             'paid_to': owner['email']
         }
-        pending_expenses.insert_one(pending_expense)
+        payment_id = pending_expenses.insert_one(pending_expense).inserted_id
+        group_pending = mongo.query_table('groups', {'uuid': group_id}, db)['pending_payments']
+        group_pending.append(payment_id)
+        new_val = {'pending_payments': group_pending}
+        db['groups'].update_one({'uuid': group_id}, {'$set': new_val})
         
         # send owner notification
         notif_pref = mongo.query_table('users', {'email': owner['email']}, db)['settings']['notification']

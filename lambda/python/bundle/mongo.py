@@ -37,7 +37,8 @@ def user_balance_in_group(user_id, group_id, db):
     for e in expenses:
         if e['group_id'] == group_id:
             if e['owner'] == user_id:
-                user_group_balance += e['amount']
+                for u in e['users']:
+                    user_group_balance += u[1]
             else:
                 if query_table('users', {'email' : e['owner']}, db) != None:
                     for u in e['users']:

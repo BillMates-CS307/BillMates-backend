@@ -91,7 +91,7 @@ pay_expense:
     IF (token is incorrect):
         = {'token_success' : false}
     ELSE :
-        IF (amount exceeds users debt on that expense):
+        IF (expense does not exist):
             = {"token_success" : true, "pay_success": false}
         ELSE:
             = {"token_success" : true, "pay_success": true}
@@ -253,3 +253,15 @@ remove_expense:
         = {'token_success' : false}
     IF (token is correct, expense exists):
         = {'token_success' : true, 'remove_success' : true}
+        
+store_venmo_token:
+    URL: https://hq56rve3ccdasnkl45tedppqgu0cshgn.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+        venmo_token: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, user exists):
+        = {'token_success' : true, 'store_success' : true}

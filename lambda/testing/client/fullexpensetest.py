@@ -129,7 +129,7 @@ def main(): # Make sure group has no expenses or payments when run
         return
     print('balance_payment (1) success')
 
-    expense_id = get_group_info_json('rdrittner@gmail.com')['expenses'][1]['_id']
+    expense_id = get_group_info_json('rdrittner@gmail.com')['expenses'][0]['_id']
     body = {'expense_id': expense_id, 'email': 'rdrittner@gmail.com'}
     resp = requests.post(curl, headers=headers, json=body)
     contest_return = resp.json()
@@ -167,7 +167,52 @@ def main(): # Make sure group has no expenses or payments when run
     print('remove_expense (2) success')
 
     balances = get_group_info_json('rdrittner@gmail.com')['balances']
-    print(balances)
+    body = {
+        'email': 'rrittner@purdue.edu', 
+        'group_id': '3c2fbeb8-15c4-4b17-95f8-7019c17493bc',
+        'total': 10,
+        'expenses': {'rdrittner@gmail.com': 10}
+    }
+    resp = requests.post(burl, headers=headers, json=body)
+    balance_payment = resp.json()
+    if balance_payment['pay_success'] != True:
+        print('balance_payment (2) error')
+        print(balance_payment)
+        return
+    print('balance_payment (2) success')
+
+    balances = get_group_info_json('rdrittner@gmail.com')['balances']
+    if balances['rdrittner@gmail.com'] != 0 or balances['rrittner@purdue.edu'] != 0:
+        print('balances incorrect')
+        print(balance_payment)
+        return
+    print('balances correct')
+
+    expenses = get_group_info_json('rdrittner@gmail.com')['expenses']
+    expense_id1 = expenses[0]['_id']
+    expense_id2 = expenses[1]['_id']
+
+    body = {'expense_id': expense_id1, 'remove': True}
+    resp = requests.post(rurl, headers=headers, json=body)
+    remove_return = resp.json()
+    if remove_return['remove_success'] != True:
+        print('remove_expense (3) error')
+        print(contest_return)
+        return
+    print('remove_expense (3) success')
+
+    body = {'expense_id': expense_id2, 'remove': True}
+    resp = requests.post(rurl, headers=headers, json=body)
+    remove_return = resp.json()
+    if remove_return['remove_success'] != True:
+        print('remove_expense (4) error')
+        print(contest_return)
+        return
+    print('remove_expense (4) success')
+
+    print('Full test success')
+
+
 
 
 

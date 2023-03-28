@@ -9,7 +9,7 @@ def make_notification(user_email: str, message: str, time: str):
     user = query_table('users', {'email':user_email}, db)
     users = db['users']
     new_notif = {
-        'user' : user,
+        'user' : user['email'],
         'sender' : 'BillMates',
         'message': message,
         'time': time,
