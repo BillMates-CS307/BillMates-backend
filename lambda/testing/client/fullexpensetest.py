@@ -28,10 +28,10 @@ def setup():
     body = {'email': "rrittner@purdue.edu", "uuid":uuid}
     print(requests.post(aurl, headers=headers, json=body).json())
 
-def get_group_info_json():
+def get_group_info_json(email):
     url = 'https://jujezuf56ybwzdn7edily3gu6a0dcdir.lambda-url.us-east-2.on.aws/'
     headers = {'token': 'zpdkwA.2_kLU@zg'}
-    body = {'group_id': uuid, 'email': 'rrittner@purdue.edu'}
+    body = {'group_id': uuid, 'email': email}
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
     
@@ -61,10 +61,14 @@ def payment_fulfilled_json(url: str, accepted, payment_id) -> json:
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
 
-def main(): # not done
+def main(): # Make sure group has no expenses or payments when run
+    headers = {'token': 'zpdkwA.2_kLU@zg'}
     nurl = 'https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/'
     purl = 'https://q6dj43wfjfvztvxbhdyqogvn2y0gfcro.lambda-url.us-east-2.on.aws/'
     furl = 'https://jfynig6bitelqawn2z4pv7rg440wnwjw.lambda-url.us-east-2.on.aws/'
+    burl = 'https://ipzfxhr6iinf5lohek6kvva3lu0wirji.lambda-url.us-east-2.on.aws/'
+    curl = 'https://ctxt572a2yvnjttpbcnloz6gem0fhzmo.lambda-url.us-east-2.on.aws/'
+    rurl = 'https://2xtgpr37spnenjmrurwm26mel40apwki.lambda-url.us-east-2.on.aws/'
 
     new_expense = new_expense_json(nurl)
     if new_expense['submit_success'] != True:
@@ -73,7 +77,7 @@ def main(): # not done
         return
     print('new_expense (1) success')
 
-    expense_id = get_group_info_json()['expenses'][0]['_id']
+    expense_id = get_group_info_json('rrittner@purdue.edu')['expenses'][0]['_id']
     new_payment = pay_expense_json(purl, expense_id)
     if new_payment['pay_success'] != True:
         print('pay_expense (1) error')
@@ -81,7 +85,7 @@ def main(): # not done
         return
     print('new_payment (1) success')
 
-    payment_id = get_group_info_json()['pending'][0]['_id']
+    payment_id = get_group_info_json('rrittner@purdue.edu')['pending'][0]['_id']
     new_fulfill = payment_fulfilled_json(furl, False, payment_id)
     if new_fulfill['handle_success'] != True:
         print('fulfill_payment (1) error')
@@ -96,12 +100,75 @@ def main(): # not done
         return
     print('new_payment (2) success')
 
-    payment_id2 = get_group_info_json()['pending'][0]['_id']
+    payment_id2 = get_group_info_json('rrittner@purdue.edu')['pending'][0]['_id']
     new_fulfill2 = payment_fulfilled_json(furl, True, payment_id2)
     if new_fulfill2['handle_success'] != True:
         print('fulfill_payment (2) error')
         print(new_fulfill2)
         return
     print('new_fulfill (2) success')
+
+    new_expense = new_expense_json(nurl)
+    if new_expense['submit_success'] != True:
+        print("new_expense (3) error")
+        print(new_expense)
+        return
+    print('new_expense (3) success')  
+
+    body = {
+        'email': 'rdrittner@gmail.com', 
+        'group_id': '3c2fbeb8-15c4-4b17-95f8-7019c17493bc',
+        'total': 10,
+        'expenses': {'rrittner@purdue.edu': 10}
+    }
+    resp = requests.post(burl, headers=headers, json=body)
+    balance_payment = resp.json()
+    if balance_payment['pay_success'] != True:
+        print('balance_payment (1) error')
+        print(balance_payment)
+        return
+    print('balance_payment (1) success')
+
+    expense_id = get_group_info_json('rdrittner@gmail.com')['expenses'][1]['_id']
+    body = {'expense_id': expense_id, 'email': 'rdrittner@gmail.com'}
+    resp = requests.post(curl, headers=headers, json=body)
+    contest_return = resp.json()
+    if contest_return['contest_success'] != True:
+        print('contest_expense (1) error')
+        print(contest_return)
+        return
+    print('contest_expense (1) success')
+
+    body = {'expense_id': expense_id, 'remove': False}
+    resp = requests.post(rurl, headers=headers, json=body)
+    remove_return = resp.json()
+    if remove_return['remove_success'] != True:
+        print('remove_expense (1) error')
+        print(contest_return)
+        return
+    print('remove_expense (1) success')
+
+    body = {'expense_id': expense_id, 'email': 'rdrittner@gmail.com'}
+    resp = requests.post(curl, headers=headers, json=body)
+    contest_return = resp.json()
+    if contest_return['contest_success'] != True:
+        print('contest_expense (2) error')
+        print(contest_return)
+        return
+    print('contest_expense (2) success')
+
+    body = {'expense_id': expense_id, 'remove': True}
+    resp = requests.post(rurl, headers=headers, json=body)
+    remove_return = resp.json()
+    if remove_return['remove_success'] != True:
+        print('remove_expense (2) error')
+        print(contest_return)
+        return
+    print('remove_expense (2) success')
+
+    balances = get_group_info_json('rdrittner@gmail.com')['balances']
+    print(balances)
+
+
 
 main()
