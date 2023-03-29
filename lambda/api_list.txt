@@ -45,7 +45,7 @@ change_settings:
 new_expense:
     URL: https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
-    payload: 'title' (string), 'group_id' (int), 'expense' (dict), 'total' (double) fields (JSON)
+    payload: 'title' (string), 'group_id' (int), 'expense' (dict), 'total' (double), 'comment' (string) fields (JSON)
     expense dict contains user email strings as keys and amount owed doubles as values. All values positive,
     owner is email of person owed total
     IF (token is incorrect):
