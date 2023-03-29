@@ -1,7 +1,12 @@
 import json
 from pymongo import MongoClient
+import bundle.g_password
 import bundle.mongo as mongo
 import bundle.api as api
+from bson.objectid import ObjectId
+import bundle.notification as notif
+import bundle.send as mail
+import datetime
 
 def lambda_handler(event, context):
     token = event['headers']['token']
@@ -21,31 +26,10 @@ def lambda_handler(event, context):
         u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
         # notification when due date is reached?
         
-        u_expenses[owner_email] = total
-        # make sure that total of owed money for each user = total for first user
-        check_total = 0
-        failure = False
-        for u_email in u_expenses:
-            # first loop to check that all users are in group and that expense totals add up
-            user_groups = mongo.query_table('users', {'email': u_email}, db)['groups']
-            
-            # if user not in expense's group, return failure
-            failure = group_id not in user_groups
-            
-            if u_expenses[u_email] < 0:
-                failure = True
-            if not u_email == owner_email: # users who owe money
-                check_total += u_expenses[u_email]
-        if not check_total == total:
-            # if totals are not equal
-            failure = True
-        if failure:
+        if total < 0:
             response['submit_success'] = False
             return api.build_capsule(response)
         
-        temp_expenses = u_expenses.copy()
-        
-        del u_expenses[owner_email]
         # convert expense dict to array
         users = []
         for u in u_expenses:
@@ -69,11 +53,34 @@ def lambda_handler(event, context):
         db['groups'].update_one({'uuid': group_id}, {'$set': new_val})
         
         # add expense to users expense fields
+        temp_expenses = u_expenses.copy()
+        temp_expenses[owner_email] = -total
         for u in temp_expenses:
             u_expense_list = mongo.query_table('users', {'email': u}, db)['expenses']
             u_expense_list.append(insert_result.inserted_id)
             new_val = {'expenses': u_expense_list}
             db['users'].update_one({'email': u}, {'$set': new_val})
+        
+        # notify users on expense
+        email_users = []
+        notif_users = []
+        for u in u_expenses:
+            user = mongo.query_table('users', {'email': u}, db)
+            notif_pref = user['settings']['notification']
+            if notif_pref == 'only_email' or notif_pref == 'both':
+                email_users.append(u)
+            if notif_pref == 'only_billmates' or notif_pref == 'both':
+                notif_users.append(u)
+        o_name = mongo.query_table('users', {'email': owner_email}, db)['name']
+        g_name = mongo.query_table('groups', {'uuid': group_id}, db)['name']
+        body = o_name + ' has created expense ' + title + ' in group ' + \
+            g_name + '. You are being charged $' + str(u_expenses[u]) + '.'
+        subject = 'New Expense'
+        mail.send_email(subject, body, email_users)
+        for u in notif_users:
+            time = str(datetime.datetime.now())
+            notif.make_notification(u, body, time)
+        
         
         response['submit_success'] = True
     return api.build_capsule(response)
