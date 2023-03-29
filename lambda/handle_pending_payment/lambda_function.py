@@ -29,6 +29,7 @@ def lambda_handler(event, context):
         
         p = "pending_paid_expenses"
         payment = mongo.query_table(p, {'_id': payment_id}, db)
+
         # payment_id is valid
         if payment is None:
             response['handle_success'] = False
@@ -44,6 +45,7 @@ def lambda_handler(event, context):
         paid_by = payment['paid_by']
         amount = payment['amount_paid']
         title = payment['title']
+        comment = payment['comment']
         
         # is payment accepted (status == true) means accepted
         if not status: # payment denied
@@ -66,6 +68,7 @@ def lambda_handler(event, context):
                 new_expense = {
                     '_id': original_id,
                     'title': title,
+                    'comment': comment,
                     'group_id': group_id,
                     'users': [(paid_by, amount)],
                     'amount': amount,

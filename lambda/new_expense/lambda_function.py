@@ -21,6 +21,7 @@ def lambda_handler(event, context):
         parameters = json.loads(event['body'])
         title = parameters['title'] # title of expense 
         total = parameters['total'] 
+        comment = parameters['comment']
         group_id = parameters['group_id'] # group_id for expense
         owner_email = parameters['owner']
         u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
@@ -38,6 +39,7 @@ def lambda_handler(event, context):
         new_expense = {
             'group_id': group_id,
             'title': title,
+            'comment': comment,
             'owner': owner_email,
             'users': users,
             'amount': total,

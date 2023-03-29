@@ -40,6 +40,7 @@ def new_expense_json(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     body = {'group_id': uuid,
             'title': 'new_expense!!',
+            'comment': 'a comment',
             'total': 10,
             'expense': {'rdrittner@gmail.com': 10},
             'owner': 'rrittner@purdue.edu'
@@ -92,7 +93,7 @@ def main(): # Make sure group has no expenses or payments when run
         print(new_fulfill)
         return
     print('new_fulfill (1) success')
-
+    
     new_payment2 = pay_expense_json(purl, expense_id)
     if new_payment2['pay_success'] != True:
         print('pay_expense (2) error')

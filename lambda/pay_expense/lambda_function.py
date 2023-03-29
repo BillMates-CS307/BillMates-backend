@@ -69,6 +69,7 @@ def lambda_handler(event, context):
             'expense_id': expense_id,
             'group_id': group_id,
             'title': expense['title'],
+            'comment': expense['comment'],
             'amount_paid': amount,
             'paid_by': email,
             'paid_to': owner['email']
