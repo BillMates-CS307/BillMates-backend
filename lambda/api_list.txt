@@ -265,3 +265,14 @@ store_venmo_token:
         = {'token_success' : false}
     IF (token is correct, user exists):
         = {'token_success' : true, 'store_success' : true}
+
+get_all_groups:
+    URL: https://al53x3tpmf65idl4fujgprneya0ulsfd.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, user exists):
+        = {'token_success' : true, 'get_success' : true}
