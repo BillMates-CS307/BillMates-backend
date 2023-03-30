@@ -297,7 +297,7 @@ reset_group
         = {'token_success' : true, 'reset_success' : true}
 
 change_user_information:
-    URL: ~~~
+    URL: https://b3s3uiqq5h7gbd7ay3kjhjl2ti0qnrmn.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: {
                 email: string
@@ -309,6 +309,23 @@ change_user_information:
     IF (token is correct, email correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, email incorrect):
+        = {'token_success' : true, 'change_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false}
+
+change_group_info:
+    URL: https://p72cgnfoamqcchthqgqdvzz25q0tnpkr.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                group_id: string
+                fufillment?: string ('both | 'venmo' | 'billmates')
+                auto_approve?: boolean
+                max_char?: int
+             }
+    response paylaood:
+    IF (token is correct, group_id correct):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, group_id incorrect):
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false}
