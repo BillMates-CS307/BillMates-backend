@@ -55,11 +55,11 @@ def lambda_handler(event, context):
             n_name = mongo.query_table('users', {'email': paid_to}, db)['name']
             body = n_name + ' has denied your payment of $' + str(amount) + ' for ' + \
                         title + ' in group ' + group['name'] + '.'
-            if notif_pref == 'only_email' or notif_pref == 'both': # email
+            if notif_pref == 'only email' or notif_pref == 'both': # email
                 subject = 'Payment denied'
                 recipients = [paid_by]
                 mail.send_email(subject, body, recipients)
-            if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+            if notif_pref == 'only billmates' or notif_pref == 'both': # BillMates notification
                 time = str(datetime.datetime.now())
                 notif.make_notification(paid_by, body, time)
             

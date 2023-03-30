@@ -29,6 +29,7 @@ def lambda_handler(event, context):
                     "name" : payload['name'],
                     "uuid" : group_id,
                     "members" : [payload['manager']],
+                    "all_time_members": [payload['manager']],
                     "manager" : payload['manager'],
                     "expenses" : [],
                     "pending_payments": [],

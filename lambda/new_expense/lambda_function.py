@@ -69,9 +69,9 @@ def lambda_handler(event, context):
         for u in u_expenses:
             user = mongo.query_table('users', {'email': u}, db)
             notif_pref = user['settings']['notification']
-            if notif_pref == 'only_email' or notif_pref == 'both':
+            if notif_pref == 'only email' or notif_pref == 'both':
                 email_users.append(u)
-            if notif_pref == 'only_billmates' or notif_pref == 'both':
+            if notif_pref == 'only billmates' or notif_pref == 'both':
                 notif_users.append(u)
         o_name = mongo.query_table('users', {'email': owner_email}, db)['name']
         g_name = mongo.query_table('groups', {'uuid': group_id}, db)['name']

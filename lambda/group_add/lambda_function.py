@@ -28,6 +28,9 @@ def lambda_handler(event, context):
                     new_arr = list(group['members'])
                     new_arr.append(payload['email'])
                     groups.update_one(group, {"$set": { "members": new_arr} })
+                    new_arr = list(group['all_time_members'])
+                    new_arr.append(payload['email'])
+                    groups.update_one({'uuid': group['uuid']}, {'$set': {'all_time_members': new_arr}})
                     response['group_add_success'] = True
                     
                     # adding group to users group field

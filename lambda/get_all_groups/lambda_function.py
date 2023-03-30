@@ -51,6 +51,7 @@ def lambda_handler(event, context):
                 members[m] = mongo.query_table('users', {'email': m}, db)['name']
                 out['balances'][m] = mongo.user_balance_in_group(m, g, db)
             out['members'] = members
+            out['all_time_members'] = group['all_time_members']
             out['expenses'] = requests
             out['name'] = name
             out['manager'] = str(group['manager'])

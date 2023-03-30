@@ -276,3 +276,15 @@ get_all_groups:
         = {'token_success' : false}
     IF (token is correct, user exists):
         = {'token_success' : true, 'get_success' : true}
+        
+kick_user:
+    URL: https://m2sfilsrw4pe6wsrtrl2z7jwq40yifvd.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+        group_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, user and group exist):
+        = {'token_success' : true, 'delete_success' : true}

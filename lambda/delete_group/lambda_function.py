@@ -34,11 +34,7 @@ def lambda_handler(event, context):
         response['delete_success'] = True
         
         # getting objects
-        users_list = list(db['users'].find())
-        g_users = []
-        for u in users_list:
-            if group_id in u['groups']:
-                g_users.append(u['email'])
+        g_users = mongo.query_table('groups', {'uuid': group_id}, db)['members']
         
         # send notification to all users
         for us in g_users:
@@ -49,11 +45,11 @@ def lambda_handler(event, context):
             n_name = mongo.query_table('users', {'email': group['manager']}, db)['name']
             body = n_name + ' has deleted group ' + group['name'] + ' which you are a member of. ' + \
                     'Your outstanding balance in the group was $' + str(balance) + '.'
-            if notif_pref == 'only_email' or notif_pref == 'both': # email
+            if notif_pref == 'only email' or notif_pref == 'both': # email
                 subject = 'Group deleted'
                 recipients = [u['email']]
                 mail.send_email(subject, body, recipients)
-            if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+            if notif_pref == 'only billmates' or notif_pref == 'both': # BillMates notification
                 time = str(datetime.datetime.now())
                 notif.make_notification(u['email'], body, time)
         

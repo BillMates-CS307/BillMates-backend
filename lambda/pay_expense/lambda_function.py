@@ -85,11 +85,11 @@ def lambda_handler(event, context):
         n_name = mongo.query_table('users', {'email': email}, db)['name']
         body = n_name + ' has paid $' + str(amount) + ' of your expense request ' + \
                 expense['title'] + ' in group ' + group['name'] + '.'
-        if notif_pref == 'only_email' or notif_pref == 'both': # email
+        if notif_pref == 'only email' or notif_pref == 'both': # email
             subject = 'Payment rec'
             recipients = [owner['email']]
             mail.send_email(subject, body, recipients)
-        if notif_pref == 'only_billmates' or notif_pref == 'both': # BillMates notification
+        if notif_pref == 'only billmates' or notif_pref == 'both': # BillMates notification
             time = str(datetime.datetime.now())
             notif.make_notification(owner['email'], body, time)
             

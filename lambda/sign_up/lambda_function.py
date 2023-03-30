@@ -19,6 +19,7 @@ def lambda_handler(event, context):
         password = parameters['password']
         name = parameters['name']
         
+        # users = db['users']
         user, users = mongo.query_user({'email': email}, True)
         response['signup_success'] = user == None
         if response['signup_success']:
@@ -27,7 +28,10 @@ def lambda_handler(event, context):
                 'password': password,
                 'groups': [],
                 'name': name,
-                'settings': {'notification': 'both'},
+                'settings': {
+                    'notification': 'both',
+                    'venmo_token': None
+                },
                 'notifications': [],
                 'expenses': [],
                 'attempts': 0
