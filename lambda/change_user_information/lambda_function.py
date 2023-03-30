@@ -28,9 +28,16 @@ def lambda_handler(event, context):
         user = mongo.query_table('users', {'email': email}, db)
         users = db['users']
         # check if new password and name are provided
-        notification = None
-        if 'notification' in parameters:
-            notification = parameters['notification']
+        password = None
+        name = None
+        if 'newPassword' in parameters:
+            if parameters['oldPassword'] == None or not parameters['oldPassword'] == user['password']:
+                response['change_success'] = False
+                return api.build_capsule(response)
+            password = parameters['newPassword']
+        if 'name' in parameters:
+            name = parameters['name']
+        
         if user == None:
             # if no user has email, user doesn't exist and return failure
             response['change_success'] = False
@@ -38,9 +45,10 @@ def lambda_handler(event, context):
             # update necessary fields
             query = {'email': email}
             new_val = {}
-            if not notification == None:
-                new_val['settings'] = {}
-                new_val['settings']['notification'] = notification
+            if not password == None:
+                new_val['password'] = password
+            if not name == None:
+                new_val['name'] = name
             users.update_one(query, {'$set': new_val})
             response['change_success'] = True
 
