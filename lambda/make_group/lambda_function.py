@@ -35,6 +35,7 @@ def lambda_handler(event, context):
                     "pending_payments": [],
                     "calendar" : [],
                     "shopping list" : [],
+                    "settings" : dict(),
                     "archived" : False
                 }
                 groups.insert_one(group_obj)
