@@ -24,17 +24,13 @@ sign_up:
         = {'token_success' : false}
 
 change_settings:
-    change_settings:
     URL: https://yimbhwmzyzeikdbjqylkdonwoy0czhwq.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: {
                 email: string
-                name?: string
-                newPassword?: string
-                oldPassword?: string
                 notification?: "both" | "only billmates" | "only email"
              }
-    response payload:
+    response paylaood:
     IF (token is correct, email correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, email incorrect):
@@ -299,3 +295,20 @@ reset_group
         = {'token_success' : false}
     IF (token is correct, group exists):
         = {'token_success' : true, 'reset_success' : true}
+
+change_user_information:
+    URL: ~~~
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                email: string
+                name?: string
+                newPassword?: string
+                oldPassword?: string
+             }
+    response paylaood:
+    IF (token is correct, email correct):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, email incorrect):
+        = {'token_success' : true, 'change_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false}
