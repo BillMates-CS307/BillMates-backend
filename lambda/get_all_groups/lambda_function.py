@@ -54,6 +54,7 @@ def lambda_handler(event, context):
             out['all_time_members'] = group['all_time_members']
             out['expenses'] = requests
             out['name'] = name
+            out['settings'] = dict(group['settings'])
             out['manager'] = str(group['manager'])
             out['balance'] = mongo.user_balance_in_group(email, g, db)
             out['pending'] = list(pending.find({'paid_to': email}))
