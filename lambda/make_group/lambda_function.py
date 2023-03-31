@@ -36,7 +36,8 @@ def lambda_handler(event, context):
                     "calendar" : [],
                     "shopping list" : [],
                     "settings" : dict(),
-                    "archived" : False
+                    "archived" : False,
+                    "blacklist" : []
                 }
                 groups.insert_one(group_obj)
                 response['make_group_success'] = True

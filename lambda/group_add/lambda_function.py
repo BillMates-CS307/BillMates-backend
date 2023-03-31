@@ -24,7 +24,7 @@ def lambda_handler(event, context):
             group = check_database(payload, db)
             groups = db['groups']
             if group != None:
-                if not payload['email'] in group['members']:
+                if not payload['email'] in group['members'] and not payload['email'] in group['blacklist']:
                     new_arr = list(group['members'])
                     new_arr.append(payload['email'])
                     groups.update_one(group, {"$set": { "members": new_arr} })
