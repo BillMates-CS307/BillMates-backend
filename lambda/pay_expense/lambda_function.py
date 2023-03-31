@@ -25,6 +25,7 @@ def lambda_handler(event, context):
         email = parameters['email']
         expense_id = ObjectId(parameters['expense_id'])
         amount = parameters['amount']
+        method = parameters['payment_method']
         
         # check if expense exists
         expense = mongo.query_table('expenses', {'_id': expense_id}, db)
@@ -63,28 +64,29 @@ def lambda_handler(event, context):
             # if user is only debtor on expense, remove expense
             if len(expense['users']) == 0:
                 expenses.delete_one({'_id': expense_id})
-                
-        # create entry in pending_paid_expenses
-        pending_expense = {
-            'expense_id': expense_id,
-            'group_id': group_id,
-            'title': expense['title'],
-            'comment': expense['comment'],
-            'amount_paid': amount,
-            'paid_by': email,
-            'paid_to': owner['email']
-        }
-        payment_id = pending_expenses.insert_one(pending_expense).inserted_id
-        group_pending = mongo.query_table('groups', {'uuid': group_id}, db)['pending_payments']
-        group_pending.append(payment_id)
-        new_val = {'pending_payments': group_pending}
-        db['groups'].update_one({'uuid': group_id}, {'$set': new_val})
+               
+        if not group['settings']['auto_approve']: 
+            # create entry in pending_paid_expenses
+            pending_expense = {
+                'expense_id': expense_id,
+                'group_id': group_id,
+                'title': expense['title'],
+                'comment': expense['comment'],
+                'amount_paid': amount,
+                'paid_by': email,
+                'paid_to': owner['email']
+            }
+            payment_id = pending_expenses.insert_one(pending_expense).inserted_id
+            group_pending = mongo.query_table('groups', {'uuid': group_id}, db)['pending_payments']
+            group_pending.append(payment_id)
+            new_val = {'pending_payments': group_pending}
+            db['groups'].update_one({'uuid': group_id}, {'$set': new_val})
         
         # send owner notification
         notif_pref = mongo.query_table('users', {'email': owner['email']}, db)['settings']['notification']
         n_name = mongo.query_table('users', {'email': email}, db)['name']
         body = n_name + ' has paid $' + str(amount) + ' of your expense request ' + \
-                expense['title'] + ' in group ' + group['name'] + '.'
+                expense['title'] + ' in group ' + group['name'] + ' with ' + method + '.'
         if notif_pref == 'only email' or notif_pref == 'both': # email
             subject = 'Payment rec'
             recipients = [owner['email']]
