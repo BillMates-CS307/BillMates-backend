@@ -44,6 +44,8 @@ def user_balance_in_group(user_id, group_id, db):
                     for u in e['users']:
                         if u[0] == user_id:
                             user_group_balance -= u[1]
+    if db['groups'].find_one({'uuid' : group_id})['archived']:
+        user_group_balance = 0
     return user_group_balance
 
 # Simple getter to grab group name from group_id (primarily for get_user)
