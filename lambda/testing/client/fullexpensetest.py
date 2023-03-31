@@ -3,7 +3,7 @@
 import json
 import requests
 
-uuid = "3c2fbeb8-15c4-4b17-95f8-7019c17493bc"
+uuid = "32d4ddbb-e56f-49c9-9f99-8eecafa00ce0"
 
 def setup():
     # sign up both users
@@ -66,6 +66,8 @@ def payment_fulfilled_json(url: str, accepted, payment_id) -> json:
     return resp.json()
 
 def main(): # Make sure group has no expenses or payments when run
+    #setup()
+    #return
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     nurl = 'https://osggc3wtegomn5yliv5heqkpji0ohbfk.lambda-url.us-east-2.on.aws/'
     purl = 'https://q6dj43wfjfvztvxbhdyqogvn2y0gfcro.lambda-url.us-east-2.on.aws/'
@@ -121,7 +123,7 @@ def main(): # Make sure group has no expenses or payments when run
 
     body = {
         'email': 'rdrittner@gmail.com', 
-        'group_id': '3c2fbeb8-15c4-4b17-95f8-7019c17493bc',
+        'group_id': '32d4ddbb-e56f-49c9-9f99-8eecafa00ce0',
         'total': 10,
         'expenses': {'rrittner@purdue.edu': 10}
     }
@@ -173,7 +175,7 @@ def main(): # Make sure group has no expenses or payments when run
     balances = get_group_info_json('rdrittner@gmail.com')['balances']
     body = {
         'email': 'rrittner@purdue.edu', 
-        'group_id': '3c2fbeb8-15c4-4b17-95f8-7019c17493bc',
+        'group_id': '32d4ddbb-e56f-49c9-9f99-8eecafa00ce0',
         'total': 10,
         'expenses': {'rdrittner@gmail.com': 10}
     }
