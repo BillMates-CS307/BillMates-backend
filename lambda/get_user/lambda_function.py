@@ -28,11 +28,12 @@ def lambda_handler(event, context):
             new_groups = []
             db = mongo.get_database()
             for group_id in user['groups']:
-                mongo.query_table('groups', {'uuid' : group_id}, db)
+                group = mongo.query_table('groups', {'uuid' : group_id}, db)
                 build = {}
                 build['uuid'] = group_id
                 build['name'] = mongo.get_group_name(group_id, db)
                 build['balance'] = mongo.user_balance_in_group(user['email'], group_id, db)
+                build['archived'] = group['archived']
                 new_groups.append(build)
             response['user'] = {
                 'name' : user['name'],
