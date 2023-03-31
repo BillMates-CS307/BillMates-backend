@@ -50,9 +50,12 @@ def new_expense_json(url: str) -> json:
 
 def pay_expense_json(url: str, expense_id) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
-    body = {'expense_id': expense_id,
-            'email': 'rdrittner@gmail.com',
-            'amount': 10}
+    body = {
+        'expense_id': expense_id,
+        'email': 'rdrittner@gmail.com',
+        'amount': 10,
+        'payment_method': 'cash'
+    }
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
 

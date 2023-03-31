@@ -7,6 +7,7 @@ def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     body = {'group_id': "3c2fbeb8-15c4-4b17-95f8-7019c17493bc",
             'title': 'anotha one',
+            'comment': '(. )( .)',
             'total': 10,
             'expense': {'rrittner@purdue.edu': 10},
             'owner': 'rdrittner@gmail.com'

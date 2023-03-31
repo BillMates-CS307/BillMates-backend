@@ -83,7 +83,7 @@ group_add:
 pay_expense:
     URL: https://q6dj43wfjfvztvxbhdyqogvn2y0gfcro.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
-    payload: 'email' (string), 'expense_id' (string), 'amount' (double)
+    payload: 'email' (string), 'expense_id' (string), 'amount' (double), 'payment_method' (string)
     IF (token is incorrect):
         = {'token_success' : false}
     ELSE :
