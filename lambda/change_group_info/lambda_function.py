@@ -23,25 +23,31 @@ def lambda_handler(event, context):
 
         # retrieving parameters
         parameters = json.loads(event['body'])
-        email = parameters['email']
+        uuid = parameters['group_id']
         # retrieve collection and user
-        user = mongo.query_table('users', {'email': email}, db)
-        users = db['users']
+        group = mongo.query_table('groups', {'uuid': uuid}, db)
+        groups = db['groups']
         # check if new password and name are provided
-        notification = None
-        if 'notification' in parameters:
-            notification = parameters['notification']
-        if user == None:
+        fufillment =  group['settings']['fufillment']
+        auto_approve =  group['settings']['auto_approve']
+        max_char =  group['settings']['max_char']
+        if 'fufillment' in parameters:
+            fufillment = parameters['fufillment']
+        if 'auto_approve' in parameters:
+            auto_approve = parameters['auto_approve']
+        if 'max_char' in parameters:
+            max_char = parameters['max_char']
+        if group == None:
             # if no user has email, user doesn't exist and return failure
             response['change_success'] = False
         else:
             # update necessary fields
-            query = {'email': email}
+            query = {'uuid': uuid}
             new_val = {}
-            if not notification == None:
-                new_val['settings'] = {}
-                new_val['settings']['notification'] = notification
-            users.update_one(query, {'$set': new_val})
+            new_val['fufillment'] = fufillment
+            new_val['auto_approve'] = auto_approve
+            new_val['max_char'] = max_char
+            groups.update_one(query, {'$set': {'settings': new_val}})
             response['change_success'] = True
 
     return api.build_capsule(response)
