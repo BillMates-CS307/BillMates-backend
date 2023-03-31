@@ -35,7 +35,7 @@ def lambda_handler(event, context):
                     "pending_payments": [],
                     "calendar" : [],
                     "shopping list" : [],
-                    "settings" : dict(),
+                    "settings" : {'fufillment' : 'billmates', 'auto_approve' : False, 'max_char' : 20},
                     "archived" : False,
                     "blacklist" : []
                 }
