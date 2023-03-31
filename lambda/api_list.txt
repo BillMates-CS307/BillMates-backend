@@ -329,3 +329,16 @@ change_group_info:
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false}
+change_group_info:
+    URL: https://zy2ttsd3w5vhxsdv5ty6t7e6h40gdcbr.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                group_id: string
+             }
+    response paylaood:
+    IF (token is correct, group_id correct):
+        = {'token_success' : true, 'group_archive_success' : true}
+    IF (token is correct, group_id incorrect):
+        = {'token_success' : true, 'group_archive_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false}
