@@ -23,7 +23,7 @@ def lambda_handler(event, context):
         email = parameters['email']
         group = mongo.query_table('groups', {'uuid': group_id}, db)
         
-        if group is None:
+        if group is None or email not in group['members']:
             response['get_success'] = False
             return api.build_capsule(response)
         response['get_success'] = True

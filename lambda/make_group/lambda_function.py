@@ -35,8 +35,9 @@ def lambda_handler(event, context):
                     "pending_payments": [],
                     "calendar" : [],
                     "shopping list" : [],
-                    "settings" : dict(),
-                    "archived" : False
+                    "settings" : {'fufillment' : 'billmates', 'auto_approve' : False, 'max_char' : 20},
+                    "archived" : False,
+                    "blacklist" : []
                 }
                 groups.insert_one(group_obj)
                 response['make_group_success'] = True

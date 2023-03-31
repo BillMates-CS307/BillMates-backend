@@ -26,9 +26,10 @@ def lambda_handler(event, context):
             response['delete_success'] = False
             return api.build_capsule(response)
         response['delete_success'] = True
+        group['blacklist'].append(email)
         group['members'].remove(email)
         user['groups'].remove(group_id)
-        db['groups'].update_one({'uuid': group_id}, {'$set': {'members': group['members']}})
+        db['groups'].update_one({'uuid': group_id}, {'$set': {'members': group['members'], 'blacklist' : group['blacklist']}})
         db['users'].update_one({'email': email}, {'$set': {'groups': user['groups']}})
         
         # send notification
