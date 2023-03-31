@@ -6,9 +6,9 @@ from bson.objectid import ObjectId
 
 def check_database(data: dict) -> dict:
     query = {'email' : data['email']}
-    return mongo.query_user(query, False)
-    #db = mongo.get_database();
-    #return mongo.query_table('users', query, db);
+    # return mongo.query_user(query, False)
+    db = mongo.get_database();
+    return mongo.query_table('users', query, db);
     
 def lambda_handler(event, context):
        
@@ -28,10 +28,11 @@ def lambda_handler(event, context):
             new_groups = []
             db = mongo.get_database()
             for group_id in user['groups']:
+                mongo.query_table('groups', {'uuid' : group_id}, db)
                 build = {}
                 build['uuid'] = group_id
                 build['name'] = mongo.get_group_name(group_id, db)
-                build['balance'] = mongo.user_balance_in_group(user['_id'], group_id, db)
+                build['balance'] = mongo.user_balance_in_group(user['email'], group_id, db)
                 new_groups.append(build)
             response['user'] = {
                 'name' : user['name'],
