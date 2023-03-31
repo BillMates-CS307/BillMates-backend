@@ -49,6 +49,7 @@ def lambda_handler(event, context):
         response['balance'] = mongo.user_balance_in_group(email, group_id, db)
         response['pending'] = list(pending.find({'paid_to': email}))
         response['settings'] = dict(group['settings'])
+        response['archived'] = group['archived']
         
         temp_list = []
         for p in response['pending']:
