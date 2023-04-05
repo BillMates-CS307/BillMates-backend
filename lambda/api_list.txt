@@ -356,3 +356,18 @@ get_all_shopping_lists :
         = {'token_success' : true, 'get_success' : false, 'shopping_lists': []}
     IF (token is incorrect):
         = {'token_success' : false, 'get_success' : false}
+
+create_new_list :
+    URL: https://6dx5inbxxngfwkbmcwzl44tyla0vaoeh.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                group_id: string
+                name: string      
+             }
+    response payload:
+    IF (token is correct, group_id correct, name not already used):
+        = {'token_success' : true, 'create_success' : true}
+    IF (token is correct, group_id incorrect or name already used):
+        = {'token_success' : true, 'get_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false, 'get_success' : false}
