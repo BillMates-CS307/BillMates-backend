@@ -372,7 +372,7 @@ create_new_list :
     IF (token is incorrect):
         = {'token_success' : false, 'get_success' : false}
 
-get_all_shopping_lists :
+get_shopping_list :
     URL: https://2ejhbznyhq2cw4gpftd4kot2n40xxvlf.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: {
@@ -386,3 +386,21 @@ get_all_shopping_lists :
         = {'token_success' : true, 'get_success' : false}
     IF (token is incorrect):
         = {'token_success' : false, 'get_success' : false}
+
+update_shopping_list :
+    URL: https://ce6mzuwdkc7ebhnuxbik42hz5q0xxekz.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                list_id: string
+                item_name: string
+                remove_item: boolean (if true: remove item; else: add item)
+             }
+    response payload:
+    IF (token is correct, list_id is correct, item_name not in list, remove_item == false):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, list_id is correct, item_name in list, remove_item == true):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, list_id is incorrect or (item_name in list, remove_item == false) or (item_name not in list, remove_item == true)):
+        = {'token_success' : true, 'change_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false, 'change_success' : false}
