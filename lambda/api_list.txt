@@ -404,3 +404,17 @@ update_shopping_list :
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false, 'change_success' : false}
+
+flip_list_status :
+    URL: https://gdmqnuwrzqsja2ps3zc2z2y4km0ejbyu.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                list_id: string
+             }
+    response payload:
+    IF (token is correct, list_id is correct):
+        = {'token_success' : true, 'change_success' : true}
+    IF (token is correct, list_id is incorrect):
+        = {'token_success' : true, 'change_success' : false}
+    IF (token is incorrect):
+        = {'token_success' : false, 'change_success' : false}
