@@ -410,10 +410,11 @@ flip_list_status :
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: {
                 list_id: string
+                isActive: boolean
              }
     response payload:
     IF (token is correct, list_id is correct):
-        = {'token_success' : true, 'change_success' : true}
+        = {'token_success' : true, 'change_success' : true, 'previous_status': true/false}
     IF (token is correct, list_id is incorrect):
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):

@@ -22,6 +22,7 @@ def lambda_handler(event, context):
             return api.build_capsule(response)
             
         response["change_success"] = True
-        db['shoppinglists'].update_one({"_id" : ObjectId(payload['list_id'])}, {"$set": {"isActive" : not shop["isActive"]}})
+        response['previous_status'] = shop['isActive']
+        db['shoppinglists'].update_one({"_id" : ObjectId(payload['list_id'])}, {"$set": {"isActive" : payload['isActive']}})
 
     return api.build_capsule(response)
