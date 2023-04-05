@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     if response['token_success']:
         db = mongo.get_database()
         shop = mongo.query_table("shoppinglists", {'_id' : ObjectId(payload['list_id'])}, db)
-        if shop == None:
+        if shop == None or not shop['isActive']:
             return api.build_capsule(response)
         idx = -1
         items = shop['items']

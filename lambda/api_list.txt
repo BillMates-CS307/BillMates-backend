@@ -400,7 +400,7 @@ update_shopping_list :
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, list_id is correct, item_name in list, remove_item == true):
         = {'token_success' : true, 'change_success' : true}
-    IF (token is correct, list_id is incorrect or (item_name in list, remove_item == false) or (item_name not in list, remove_item == true)):
+    IF (token is correct, list_id is incorrect or (item_name in list, remove_item == false) or (item_name not in list, remove_item == true) or isActive == false):
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false, 'change_success' : false}
