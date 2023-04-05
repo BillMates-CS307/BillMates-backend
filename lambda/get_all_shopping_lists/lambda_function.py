@@ -25,5 +25,6 @@ def lambda_handler(event, context):
             response['shopping_lists'][~0]['name'] = shop['name']
             response['shopping_lists'][~0]['items'] = shop['items']
             response['shopping_lists'][~0]['isActive'] = shop['isActive']
+            response['shopping_lists'][~0]['_id'] = str(shop['_id'])
     
     return api.build_capsule(response)
