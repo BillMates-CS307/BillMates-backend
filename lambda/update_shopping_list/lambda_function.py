@@ -20,6 +20,7 @@ def lambda_handler(event, context):
         shop = mongo.query_table("shoppinglists", {'_id' : ObjectId(payload['list_id'])}, db)
         if shop == None or not shop['isActive']:
             return api.build_capsule(response)
+        response["change_success"] = True
         idx = -1
         items = shop['items']
         for i in range(len(items)):
@@ -28,7 +29,6 @@ def lambda_handler(event, context):
                 break
         if idx == -1 and payload['remove_item'] or idx != -1 and not payload['remove_item']:
             return api.build_capsule(response)
-        response["change_success"] = True
         if payload['remove_item']:
             items.pop(idx)
         else:
