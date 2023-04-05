@@ -305,7 +305,7 @@ change_user_information:
                 newPassword?: string
                 oldPassword?: string
              }
-    response paylaood:
+    response payload:
     IF (token is correct, email correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, email incorrect):
@@ -322,7 +322,7 @@ change_group_info:
                 auto_approve?: boolean
                 max_char?: int
              }
-    response paylaood:
+    response payload:
     IF (token is correct, group_id correct):
         = {'token_success' : true, 'change_success' : true}
     IF (token is correct, group_id incorrect):
@@ -335,10 +335,24 @@ change_group_info:
     payload: {
                 group_id: string
              }
-    response paylaood:
+    response payload:
     IF (token is correct, group_id correct):
         = {'token_success' : true, 'group_archive_success' : true}
     IF (token is correct, group_id incorrect):
         = {'token_success' : true, 'group_archive_success' : false}
     IF (token is incorrect):
         = {'token_success' : false}
+
+get_all_shopping_lists :
+    URL: https://evu7t6kskxh6wk7tj3cwfw7dyq0tsczh.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+                group_id: string
+             }
+    response payload:
+    IF (token is correct, group_id correct):
+        = {'token_success' : true, 'get_success' : true, 'shopping_lists': []}
+    IF (token is correct, group_id incorrect):
+        = {'token_success' : true, 'get_success' : false, 'shopping_lists': []}
+    IF (token is incorrect):
+        = {'token_success' : false, 'get_success' : false}
