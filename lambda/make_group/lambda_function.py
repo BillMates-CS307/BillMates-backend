@@ -4,6 +4,21 @@ import bundle.mongo as mongo
 import bundle.api as api
 import uuid as uu
 
+cal_template = {
+    "january": [],
+    "february": [],
+    "march": [],
+    "april": [],
+    "june": [],
+    "july": [],
+    "august": [],
+    "september": [],
+    "october": [],
+    "november": [],
+    "december": [],
+    "group_name": ""
+}
+
 def check_database(data: dict, db) -> bool:
     query = {'manager':data['manager'], 'name' : data['name']}
     return mongo.query_table('groups', query, db) != None
@@ -23,6 +38,7 @@ def lambda_handler(event, context):
         if api.check_body(["name", "manager"], payload):
             db = mongo.get_database()
             if not check_database(payload, db):
+                cal_template['group_name'] = payload['name']
                 groups = db['groups']
                 group_id = str(uu.uuid4())
                 group_obj = {
@@ -33,7 +49,7 @@ def lambda_handler(event, context):
                     "manager" : payload['manager'],
                     "expenses" : [],
                     "pending_payments": [],
-                    "calendar" : [],
+                    "calendar" : db['calendars'].insert_one(cal_template).inserted_id,
                     "shopping list" : [],
                     "settings" : {'fufillment' : 'billmates', 'auto_approve' : False, 'max_char' : 20},
                     "archived" : False,
