@@ -419,3 +419,34 @@ flip_list_status :
         = {'token_success' : true, 'change_success' : false}
     IF (token is incorrect):
         = {'token_success' : false, 'change_success' : false}
+
+add_event:
+    URL: https://nujjvkoiihad67dlfsarvzotsa0zpnbz.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string,
+        group_id: string,
+        name: string,
+        description: string,
+        location: string
+        date: string (ISO format)
+        time: string (ISO format)
+    }
+    IF (token is correct, group_id is correct):
+        = {'token_success' : true, 'add_success' : true}
+    ELSE:
+        = {'token_success' : false, 'add_success': false}
+
+get_group_calendar:
+    URL: https://insa5ebljuef64fgncauekqrgq0lerzj.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        group_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false, 'add_success' : false}
+    ELSE:
+        IF (group exists):
+            = {'token_success' : true, 'add_success': true, 'events': array}
+        ELSE: 
+            = {'token_success' : true, 'add_success': false}
