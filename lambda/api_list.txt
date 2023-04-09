@@ -450,3 +450,27 @@ get_group_calendar:
             = {'token_success' : true, 'add_success': true, 'events': array}
         ELSE: 
             = {'token_success' : true, 'add_success': false}
+
+recurring_expense:
+    URL: https://c6z6xbilcykvustu5h3jpdy3ty0znsge.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        'title': string,
+        'group_id': string,
+        'expense': dict,
+        'total': double,
+        'comment': string,
+        'owner': email,
+        'start_date': string (ISO)
+        'start_time': string (ISO)
+        'frequency': string (daily, weekly, or monthly)
+    }
+    expense dict contains user email strings as keys and amount owed doubles as values. All values positive,
+    owner is email of person owed total
+    IF (token is incorrect):
+        = {'token_success' : false}
+    ELSE :
+        IF (frequency is invalid):
+            = {'token_success' : true, 'submit_success' = false}
+        ELSE :
+            = {'token_success' : true, 'submit_success' = true}
