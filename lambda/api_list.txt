@@ -486,3 +486,18 @@ recurring_expense:
             = {'token_success' : true, 'submit_success' = false}
         ELSE :
             = {'token_success' : true, 'submit_success' = true}
+
+get_user_calendar:
+    URL: https://6b7hetv76hhwtm6ewy2ucl5sry0knann.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false, 'get_success' : false}
+    ELSE:
+        IF (group exists):
+            = {'token_success' : true, 'get_success': true, 'events': array}
+            // form of event in events is same as get_group calendar except it includes a group_id field
+        ELSE: 
+            = {'token_success' : true, 'get_success': false}
