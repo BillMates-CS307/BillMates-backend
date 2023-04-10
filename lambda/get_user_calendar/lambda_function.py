@@ -29,19 +29,20 @@ def lambda_handler(event, context):
         recurs = []
         for g in groups:
             cal = db['calendars'].find_one({'group_id': g})
-            if cal is None :
+            if cal is None:
                 continue
+            group_name = mongo.query_table('groups', {'uuid': g}, db)['name']
             for e in cal['events']:
-                e['group_id'] = str(g);
+                e['group_name'] = group_name;
                 events.append(e)
             for r in cal['recurring_expenses']:
-                r['group_id'] = str(g)
+                r['group_id'] = group_name
                 recurs.append(r)
         
         event_list = []
         for e in events:
             o = {}
-            o['group_id'] = e['group_id']
+            o['group_name'] = e['group_name']
             o['creator'] = e['creator']
             o['name'] = e['name']
             o['description'] = e['description']
@@ -54,7 +55,7 @@ def lambda_handler(event, context):
             event_list.append(o)
         for r in recurs:
             o = {}
-            o['group_id'] = e['group_id']
+            o['group_name'] = e['group_name']
             o['creator'] = r['creator']
             o['name'] = r['name']
             o['description'] = r['description']

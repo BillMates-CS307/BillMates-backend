@@ -498,6 +498,6 @@ get_user_calendar:
     ELSE:
         IF (group exists):
             = {'token_success' : true, 'get_success': true, 'events': array}
-            // form of event in events is same as get_group calendar except it includes a group_id field
+            // form of event in events is same as get_group calendar except it includes a group_name field
         ELSE: 
             = {'token_success' : true, 'get_success': false}
