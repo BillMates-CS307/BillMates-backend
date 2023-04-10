@@ -8,10 +8,10 @@ def grab_json_from_url(url: str) -> json:
     body = {
         'group_id' : '6accc963-4d89-45a6-a7d1-eede888aacb8',
         'email': 'rdrittner@gmail.com',
-        'name': 'an event!!!',
+        'name': 'another event!!!',
         'description': 'no',
         'location': 'somewhere',
-        'date': '2023-04-10',
+        'date': '2023-04-11',
         'time': '10:10:10'
     }
     resp = requests.post(url, headers=headers, json=body)

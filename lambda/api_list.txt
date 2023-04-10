@@ -448,6 +448,18 @@ get_group_calendar:
     ELSE:
         IF (group exists):
             = {'token_success' : true, 'add_success': true, 'events': array}
+            // form of event in events:
+            event = {
+                creator: string,
+                name: string,
+                descripion: string,
+                date: ISO date string,
+                time: ISO time string,
+                total: double or null,
+                expense: dict or null,
+                frequency: string or null,
+                location: string or null
+            }
         ELSE: 
             = {'token_success' : true, 'add_success': false}
 

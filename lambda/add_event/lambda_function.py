@@ -30,17 +30,29 @@ def lambda_handler(event, context):
         time_string = parameters['time']
         
         response['add_success'] = True
-        e_time = datetime.fromisoformat(date_string + 'T' + time_string)
         
         new_event = {
             'creator': creator,
             'name': name,
             'description': description,
             'location': location,
-            'time': str(e_time)
+            'time': time_string,
+            'date': date_string
         }
         
-        # add notifications
+        group = mongo.query_table('groups', {'uuid': group_id}, db)
+        email_list = []
+        body = creator + ' has created event ' + name + ' on day ' + date_string + ' in group ' + group['name'] + '.'
+        subject = 'New event'
+        for u in group['members']:
+            user = mongo.query_table('users', {'email': u}, db)
+            notif_pref = user['settings']['notification']
+            if notif_pref == 'only email' or notif_pref == 'both':
+                email_list.append(u)
+            if notif_pref == 'only billmates' or notif_pref == 'both':
+                time = str(datetime.now())
+                notif.make_notification(u, body, time)
+        mail.send_email(subject, body, email_list)
         
         db['calendars'].update_one({'group_id': group_id}, {'$push': {'events': new_event}})
         
