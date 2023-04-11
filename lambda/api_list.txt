@@ -444,10 +444,10 @@ get_group_calendar:
         group_id: string
     }
     IF (token is incorrect):
-        = {'token_success' : false, 'add_success' : false}
+        = {'token_success' : false, get_success' : false}
     ELSE:
         IF (group exists):
-            = {'token_success' : true, 'add_success': true, 'events': array}
+            = {'token_success' : true, 'get_success': true, 'events': array}
             // form of event in events:
             event = {
                 creator: string,
