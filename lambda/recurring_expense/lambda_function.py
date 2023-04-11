@@ -7,7 +7,9 @@ from bson.objectid import ObjectId
 import bundle.send as mail
 import bundle.notification as notif
 import datetime
+from datetime import timedelta
 import boto3
+import uuid as uu
 
 def lambda_handler(event, context):
     
@@ -19,6 +21,7 @@ def lambda_handler(event, context):
     response['token_success'] = api.check_token(token)
     
     if response['token_success']:
+        db = mongo.get_database()
         parameters = json.loads(event['body'])
         start_date = parameters['start_date']
         start_time = parameters['start_time']
@@ -29,13 +32,28 @@ def lambda_handler(event, context):
         group_id = parameters['group_id'] # group_id for expense
         owner_email = parameters['owner']
         u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
+        cal = mongo.query_table('calendars', {'group_id': group_id}, db)
+        if cal is None:
+            response['submit_success'] = False
+            return api.build_capsule(response)
+        response['submit_success'] = True
         body = {
             'title': title,
             'total': total,
             'comment': comment,
             'group_id': group_id,
             'owner': owner_email,
-            'expenses': u_expenses
+            'expense': u_expenses
+        }
+        cal_entry = {
+            'name': title,
+            'total': total,
+            'description': comment,
+            'creator': owner_email,
+            'expense': u_expenses,
+            'frequency': freq,
+            'date': start_date,
+            'time': start_time
         }
         header = {
             'token': token
@@ -44,6 +62,8 @@ def lambda_handler(event, context):
         # create cron rule
         # Parse start_date and start_time into datetime objects
         start_datetime = datetime.datetime.fromisoformat(start_date + 'T' + start_time)
+        # aws is 4 hours ahead so add 4 hours
+        start_datetime = start_datetime + timedelta(hours=4)
 
         # Determine the minute and hour from the start time
         minute = start_datetime.minute
@@ -51,7 +71,8 @@ def lambda_handler(event, context):
     
         # Determine the day of the month and week from the start date
         day = start_datetime.day
-        week_day = start_datetime.isoweekday()
+        # aws uses sunday as day 1 while datetime library uses monday as day 1
+        week_day = (start_datetime.isoweekday() % 7) + 1
     
         # Determine the month from the start date
         month = start_datetime.month
@@ -65,7 +86,10 @@ def lambda_handler(event, context):
         else:
             response['submit_success'] = False
             return api.build_capsule(response)
-        print(cron_rule)
+        
+        # create unique rule name
+        rule_name = str(uu.uuid4())
+        cal_entry['recurring_expense_id'] = rule_name
         
         # Set the schedule for the event rule to trigger every week
         schedule_expression = 'cron(' + cron_rule + ')'
@@ -84,16 +108,21 @@ def lambda_handler(event, context):
 
         # Create the event rule that triggers the target Lambda function every week
         aws_response = events_client.put_rule(
-            Name='recurring_expense_test',
+            Name=rule_name,
             ScheduleExpression=schedule_expression,
             State='ENABLED',
-            Description='This should create a new expense every week',
+            Description=title,
             EventBusName='default'
         )
+        
+        if 'RuleArn' not in aws_response:
+            response['submit_success'] = False
+            response['ERROR'] = aws_response
+            return api.build_capsule(response)
     
         # Add the target Lambda function to the event rule
         events_client.put_targets(
-            Rule='recurring_expense_test',
+            Rule=rule_name,
             Targets=[
                 {
                     'Id': 'new_expense',
@@ -102,7 +131,9 @@ def lambda_handler(event, context):
                 }
             ]
         )
-    
+        
+        cal['recurring_expenses'].append(cal_entry)
+        db['calendars'].update_one({'group_id': group_id}, {'$set': {'recurring_expenses': cal['recurring_expenses']}})
 
     
         
