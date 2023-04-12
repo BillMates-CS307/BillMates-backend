@@ -22,22 +22,25 @@ def lambda_handler(event, context):
     
     if response['token_success']:
         db = mongo.get_database()
+        # retrieve parameters
         parameters = json.loads(event['body'])
         start_date = parameters['start_date']
         start_time = parameters['start_time']
         freq = parameters['frequency']
-        title = parameters['title'] # title of expense 
+        title = parameters['title'] 
         total = parameters['total'] 
         comment = parameters['comment']
-        group_id = parameters['group_id'] # group_id for expense
+        group_id = parameters['group_id']
         owner_email = parameters['owner']
-        u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
+        u_expenses = parameters['expense']
+        # get calendar
         cal = mongo.query_table('calendars', {'group_id': group_id}, db)
         if cal is None:
             response['submit_success'] = False
             return api.build_capsule(response)
         response['submit_success'] = True
-        body = {
+        
+        body = { # for eventrule payload
             'title': title,
             'total': total,
             'comment': comment,
@@ -45,7 +48,11 @@ def lambda_handler(event, context):
             'owner': owner_email,
             'expense': u_expenses
         }
-        cal_entry = {
+        header = {
+            'token': token
+        }
+        
+        cal_entry = { # for calendar entry
             'name': title,
             'total': total,
             'description': comment,
@@ -55,28 +62,25 @@ def lambda_handler(event, context):
             'date': start_date,
             'time': start_time
         }
-        header = {
-            'token': token
-        }
+
         
         # create cron rule
         # Parse start_date and start_time into datetime objects
         start_datetime = datetime.datetime.fromisoformat(start_date + 'T' + start_time)
         # aws is 4 hours ahead so add 4 hours
         start_datetime = start_datetime + timedelta(hours=4)
-
-        # Determine the minute and hour from the start time
+        
+        # Determine the minute and hour, day of month, and month from the start time
         minute = start_datetime.minute
         hour = start_datetime.hour
-    
-        # Determine the day of the month and week from the start date
         day = start_datetime.day
-        # aws uses sunday as day 1 while datetime library uses monday as day 1
+        month = start_datetime.month # doesn't actually get used
+        
+        # get day of week, aws uses sunday as day 1 while datetime library uses monday as day 1
         week_day = (start_datetime.isoweekday() % 7) + 1
-    
-        # Determine the month from the start date
-        month = start_datetime.month
+        
         # Create the cron expression based on the frequency
+        # minute hour day_of_month month day_of_week year 
         if freq == 'daily':
             cron_rule = f"{minute} {hour} * * ? *"
         elif freq == 'weekly':
@@ -87,7 +91,7 @@ def lambda_handler(event, context):
             response['submit_success'] = False
             return api.build_capsule(response)
         
-        # create unique rule name
+        # create unique eventrule name
         rule_name = str(uu.uuid4())
         cal_entry['recurring_expense_id'] = rule_name
         
@@ -95,18 +99,21 @@ def lambda_handler(event, context):
         schedule_expression = 'cron(' + cron_rule + ')'
         
         # Set the JSON payload that will be passed to the Lambda function
+        # Currently doesn't work
         recurring_payload = {
             'body': body,
             'headers': header
         }
 
-        # Set the ARN of the Lambda function to be triggered by the event rule
-        target_lambda_arn = 'arn:aws:lambda:us-east-2:615430537458:function:new_expense'
-
-        # Create a CloudWatch Events client
+        # Create a CloudWatch Events client and lambda client
         events_client = boto3.client('events')
+        lambda_client = boto3.client('lambda')
+        
+        # Set the name and ARN of the Lambda function to be triggered by the event rule (new_expense)
+        function_name = 'new_expense'
+        function_arn = 'arn:aws:lambda:us-east-2:615430537458:function:new_expense'
 
-        # Create the event rule that triggers the target Lambda function every week
+        # Create the event rule that triggers new_expense every day/week/month
         aws_response = events_client.put_rule(
             Name=rule_name,
             ScheduleExpression=schedule_expression,
@@ -115,27 +122,35 @@ def lambda_handler(event, context):
             EventBusName='default'
         )
         
-        if 'RuleArn' not in aws_response:
+        if 'RuleArn' not in aws_response: # check for failure
             response['submit_success'] = False
             response['ERROR'] = aws_response
             return api.build_capsule(response)
     
-        # Add the target Lambda function to the event rule
+        # Add new_expense to the event rule as the target
         events_client.put_targets(
             Rule=rule_name,
             Targets=[
                 {
-                    'Id': 'new_expense',
-                    'Arn': target_lambda_arn,
+                    'Id': function_name,
+                    'Arn': function_arn,
                     'Input': json.dumps(recurring_payload)
                 }
             ]
         )
         
+        # Add trigger to new_expense for the eventrule
+        lambda_client.add_permission(
+            FunctionName=function_name,
+            StatementId=rule_name,
+            Action='lambda:InvokeFunction',
+            Principal='events.amazonaws.com',
+            SourceArn=aws_response['RuleArn']
+        )
+        
+        # add cal_entry to the calendar
         cal['recurring_expenses'].append(cal_entry)
         db['calendars'].update_one({'group_id': group_id}, {'$set': {'recurring_expenses': cal['recurring_expenses']}})
 
-    
-        
     return api.build_capsule(response)
 

@@ -457,7 +457,7 @@ get_group_calendar:
                 time: ISO time string,
                 total: double or null,
                 expense: dict or null,
-                frequency: string or null,
+                frequency: string,
                 location: string or null
             }
         ELSE: 

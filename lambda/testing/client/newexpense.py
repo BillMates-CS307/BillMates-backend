@@ -5,7 +5,7 @@ import requests
 
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
-    body = {'group_id': "3c2fbeb8-15c4-4b17-95f8-7019c17493bc",
+    body = {'group_id': "6accc963-4d89-45a6-a7d1-eede888aacb8",
             'title': 'anotha one',
             'comment': '(. )( .)',
             'total': 10,

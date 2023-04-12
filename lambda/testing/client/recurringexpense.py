@@ -6,11 +6,11 @@ import requests
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     body = {
-        'start_time': '21:25:00',
-        'start_date': '2023-04-10',
-        'frequency': 'weekly',
+        'start_time': '23:58:00',
+        'start_date': '2023-04-11',
+        'frequency': 'daily',
         'group_id': "6accc963-4d89-45a6-a7d1-eede888aacb8",
-        'title': 'lets see if it sends expense',
+        'title': '11:58d',
         'comment': '(. )( .)',
         'total': 10,
         'expense': {'rrittner@purdue.edu': 10},
