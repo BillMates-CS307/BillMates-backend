@@ -18,13 +18,18 @@ def lambda_handler(event, context):
     if response['token_success']:
         db = mongo.get_database()
         # retrieving parameters
-        parameters = json.loads(event['body'])
+        parameters = {}
+        try:
+            parameters = json.loads(event['body'])
+        except:
+            parameters = event['body']
         title = parameters['title'] # title of expense 
         total = parameters['total'] 
         comment = parameters['comment']
         group_id = parameters['group_id'] # group_id for expense
         owner_email = parameters['owner']
         u_expenses = parameters['expense'] # dict of form { 'email_of_user' : amount_owed }
+        tag = parameters['tag']
         # notification when due date is reached?
         
         if total < 0:
@@ -40,6 +45,7 @@ def lambda_handler(event, context):
             'group_id': group_id,
             'title': title,
             'comment': comment,
+            'tag' : tag,
             'owner': owner_email,
             'users': users,
             'amount': total,
