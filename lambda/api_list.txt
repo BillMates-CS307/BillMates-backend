@@ -510,7 +510,7 @@ get_user_calendar:
         ELSE: 
             = {'token_success' : true, 'get_success': false}
 
-remove_expense:
+remove_event:
     URL: https://dgsibjvgdor7elkqw3dbrybthy0izjkw.lambda-url.us-east-2.on.aws/
     headers: {'token' : 'zpdkwA.2_kLU@zg'}
     payload: {
