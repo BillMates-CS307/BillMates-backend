@@ -509,3 +509,19 @@ get_user_calendar:
             // form of event in events is same as get_group calendar except it includes a group_name field
         ELSE: 
             = {'token_success' : true, 'get_success': false}
+
+remove_expense:
+    URL: https://dgsibjvgdor7elkqw3dbrybthy0izjkw.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        group_id: string,
+        event_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false, 'remove_success' : false}
+    ELSE:
+        IF (calendar and event exist):
+            = {'token_success' : true, 'remove_success': true}
+        ELSE: 
+            = {'token_success' : true, 'remove_success': false}
+
