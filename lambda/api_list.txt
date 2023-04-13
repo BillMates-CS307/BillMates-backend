@@ -525,3 +525,18 @@ remove_event:
         ELSE: 
             = {'token_success' : true, 'remove_success': false}
 
+remove_recurring_expense:
+    URL: https://blrjgnkgkeggkgoiagtgktfgfy0xiemu.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        group_id: string,
+        recurring_expense_id: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false, 'remove_success' : false}
+    ELSE:
+        IF (calendar and recurring_expense exist):
+            = {'token_success' : true, 'remove_success': true}
+        ELSE: 
+            = {'token_success' : true, 'remove_success': false}
+
