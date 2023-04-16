@@ -541,3 +541,15 @@ remove_recurring_expense:
         ELSE: 
             = {'token_success' : true, 'remove_success': false}
 
+get_user_analytics:
+    URL: https://hui6d6bjvtgpaydsi5c6ykoy2y0amwxs.lambda-url.us-east-2.on.aws/
+    headers: {'token' : 'zpdkwA.2_kLU@zg'}
+    payload: {
+        email: string
+    }
+    IF (token is incorrect):
+        = {'token_success' : false}
+    IF (token is correct, email is invalid):
+        = {'token_success' : true, 'get_success' : true}
+    IF (token is correct, email is valid)
+        = {'token_success' : true, 'get_success' : false, 'analytics' : {'group_name': {}, ...}
