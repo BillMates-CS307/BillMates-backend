@@ -43,7 +43,10 @@ def lambda_handler(event, context):
                     "shopping list" : [],
                     "settings" : {'fufillment' : 'billmates', 'auto_approve' : False, 'max_char' : 20},
                     "archived" : False,
-                    "blacklist" : []
+                    "blacklist" : [],
+                    "analytics" : {
+                        payload['manager'] : mongo.new_analytics()
+                    }
                 }
                 groups.insert_one(group_obj)
                 response['make_group_success'] = True

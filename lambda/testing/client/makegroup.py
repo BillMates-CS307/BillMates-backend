@@ -5,7 +5,7 @@ import requests
 
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
-    body = {'name':'calendar2', 'manager':'rdrittner@gmail.com'}
+    body = {'name':'bengroup', 'manager':'ben@ben.ben'}
     resp = requests.post(url, headers=headers, json=body)
     return resp.json()
 

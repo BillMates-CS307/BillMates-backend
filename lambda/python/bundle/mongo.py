@@ -1,4 +1,25 @@
 from pymongo import MongoClient
+from copy import deepcopy
+
+analytic_temp = {
+    "month" : {
+                    "january": 0,
+                    "february": 0,
+                    "march": 0,
+                    "april" : 0,
+                    "june" : 0,
+                    "july" : 0,
+                    "august" : 0,
+                    "september": 0,
+                    "october" : 0,
+                    "november" : 0,
+                    "december" : 0
+                },
+    "tags" : {
+        "Entertainment": 0, "Rent": 0, "Food": 0, "Misc": 0, "No Tag" : 0
+    }
+        
+}
 
 def get_database():
     # Provide the mongodb atlas url to connect python to mongodb using pymongo
@@ -198,3 +219,7 @@ def lazy_delete(object, list_field, table, obj_key_field, ref_list, key_field, d
     if changed and update:       
         db[table].update_one({obj_key_field: object[obj_key_field]}, {'$set': new_val})
     return working_list_copy
+
+# Function to generate a new analytics object for MongoDB
+def new_analytics():
+    return deepcopy(analytic_temp)
