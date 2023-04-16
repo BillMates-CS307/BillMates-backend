@@ -34,6 +34,7 @@ def lambda_handler(event, context):
                 build['name'] = mongo.get_group_name(group_id, db)
                 build['balance'] = mongo.user_balance_in_group(user['email'], group_id, db)
                 build['archived'] = group['archived']
+                build['analytics'] = group['analytics'][payload['email']]
                 new_groups.append(build)
             response['user'] = {
                 'name' : user['name'],
