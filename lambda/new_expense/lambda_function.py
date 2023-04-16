@@ -54,6 +54,15 @@ def lambda_handler(event, context):
         }
         insert_result = db['expenses'].insert_one(new_expense)
         
+        # Code to handle analytics
+        analytics = mongo.query_table('groups', {'uuid' : group_id}, db)['analytics']
+        
+        # Get the month
+        month = datetime.datetime.now().strftime("%B").lower()
+        analytics[owner_email]["month"][month] += 1
+        analytics[owner_email]["tags"][tag] += 1
+        db['groups'].update_one({'uuid' : group_id}, {'$set' : {'analytics' : analytics}})
+        
         # add expense to group expenses field
         g_expenses = mongo.query_table('groups', {'uuid': group_id}, db)['expenses']
         g_expenses.append(insert_result.inserted_id)

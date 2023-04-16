@@ -35,10 +35,13 @@ def lambda_handler(event, context):
                     
                     # adding group to users group field
                     user = mongo.query_table('users', {'email': payload['email']}, db)
+                    analytics = mongo.query_table('groups', {'uuid' : payload['uuid']}, db)['analytics']
+                    analytics[payload['email']] = mongo.new_analytics()
+                    db['groups'].update_one({'uuid' : payload['uuid']}, {'$set' : {'analytics' : analytics}})
+                    
                     if user is None:
                         response['error'] = 'invalid email'
-                        api.build_capsule(response)
-                        return
+                        return api.build_capsule(response)
                     users = db['users']
                     new_group = payload['uuid']
                     user['groups'].append(new_group)
