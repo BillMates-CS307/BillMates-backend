@@ -33,6 +33,7 @@ def lambda_handler(event, context):
         group_id = parameters['group_id']
         owner_email = parameters['owner']
         u_expenses = parameters['expense']
+        tag = parameters['tag']
         # get calendar
         cal = mongo.query_table('calendars', {'group_id': group_id}, db)
         if cal is None:
@@ -46,7 +47,8 @@ def lambda_handler(event, context):
             'comment': comment,
             'group_id': group_id,
             'owner': owner_email,
-            'expense': u_expenses
+            'expense': u_expenses,
+            'tag': tag
         }
         header = {
             'token': token

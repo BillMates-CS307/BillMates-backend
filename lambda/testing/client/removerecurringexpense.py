@@ -6,7 +6,7 @@ import requests
 def grab_json_from_url(url: str) -> json:
     headers = {'token': 'zpdkwA.2_kLU@zg'}
     body = {
-        'recurring_expense_id': 'a5ecbb41-023e-4059-8df3-bfe05513ed96',
+        'recurring_expense_id': '4de00500-0d0e-4f27-87a2-0ab044345b1b',
         'group_id': '6accc963-4d89-45a6-a7d1-eede888aacb8'
     }
     resp = requests.post(url, headers=headers, json=body)
