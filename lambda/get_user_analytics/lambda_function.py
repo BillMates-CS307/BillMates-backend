@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             response['analytics'] = {}
             for uuid in user['groups']:
                 group = mongo.query_table('groups', {'uuid' : uuid}, db)
-                response['analytics'][group['name']] = group['analytics']
+                response['analytics'][group['uuid']] = group['analytics']
 
     return api.build_capsule(response)
             
