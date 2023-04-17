@@ -58,7 +58,7 @@ def lambda_handler(event, context):
         analytics = mongo.query_table('groups', {'uuid' : group_id}, db)['analytics']
         
         # Get the month
-        month = datetime.datetime.now().strftime("%B").lower()
+        month = datetime.datetime.now().strftime("%B").lower()[:3]
         analytics[owner_email]["month"][month] += 1
         analytics[owner_email]["tags"][tag] += 1
         db['groups'].update_one({'uuid' : group_id}, {'$set' : {'analytics' : analytics}})

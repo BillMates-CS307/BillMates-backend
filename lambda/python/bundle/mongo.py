@@ -3,17 +3,18 @@ from copy import deepcopy
 
 analytic_temp = {
     "month" : {
-                    "january": 0,
-                    "february": 0,
-                    "march": 0,
-                    "april" : 0,
-                    "june" : 0,
-                    "july" : 0,
-                    "august" : 0,
-                    "september": 0,
-                    "october" : 0,
-                    "november" : 0,
-                    "december" : 0
+                    "jan": 0,
+                    "feb": 0,
+                    "mar": 0,
+                    "apr" : 0,
+                    "may" :0,
+                    "jun" : 0,
+                    "jul" : 0,
+                    "aug" : 0,
+                    "sep": 0,
+                    "oct" : 0,
+                    "nov" : 0,
+                    "dec" : 0
                 },
     "tags" : {
         "Entertainment": 0, "Rent": 0, "Food": 0, "Misc": 0, "No Tag" : 0
