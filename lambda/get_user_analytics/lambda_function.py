@@ -33,6 +33,10 @@ def lambda_handler(event, context):
             for uuid in user['groups']:
                 group = mongo.query_table('groups', {'uuid' : uuid}, db)
                 response['analytics'][group['uuid']] = group['analytics']
+                response['analytics'][group['uuid']]['expense_relations'] = {}
+                for member in group['members']:
+                    if member != payload['email']:
+                        response['analytics'][group['uuid']]['expense_relations'][member] = mongo.user_to_user_in_group(payload['email'], member, uuid, db)
 
     return api.build_capsule(response)
             

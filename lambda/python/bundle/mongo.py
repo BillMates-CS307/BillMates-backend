@@ -70,6 +70,33 @@ def user_balance_in_group(user_id, group_id, db):
         user_group_balance = 0
     return user_group_balance
 
+
+# calculates user balance in a given group in relation to another user
+# parameters: user_id (string or ObjectId)
+#             group_id (string or ObjectId)
+#             db (database from get_database())
+# returns double (only negative if user not found in group's user field)
+# do not call this if the the database has been modified since retrieving group object
+# only way to store balance in db that wouldn't be problematic would be to make another
+def user_to_user_in_group(user_id_owner, user_id_to, group_id, db):
+    expenses = list(db['expenses'].find())
+    user_group_balance = 0
+    for e in expenses:
+        if e['group_id'] == group_id:
+            if e['owner'] == user_id_owner:
+                for u in e['users']:
+                    if u[0] == user_id_to:
+                        user_group_balance += u[1]
+            elif e['owner'] == user_id_to:
+                if query_table('users', {'email' : e['owner']}, db) != None:
+                    for u in e['users']:
+                        if u[0] == user_id_owner:
+                            user_group_balance -= u[1]
+    if db['groups'].find_one({'uuid' : group_id})['archived']:
+        user_group_balance = 0
+    return user_group_balance
+
+
 # Simple getter to grab group name from group_id (primarily for get_user)
 def get_group_name(group_id: str, db):
     return db['groups'].find_one({'uuid' : group_id})['name']
