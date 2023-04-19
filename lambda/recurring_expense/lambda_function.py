@@ -34,6 +34,7 @@ def lambda_handler(event, context):
         owner_email = parameters['owner']
         u_expenses = parameters['expense']
         tag = parameters['tag']
+        month_string = datetime.datetime.now().strftime("%B").lower()[:3]
         # get calendar
         cal = mongo.query_table('calendars', {'group_id': group_id}, db)
         if cal is None:
@@ -62,7 +63,8 @@ def lambda_handler(event, context):
             'expense': u_expenses,
             'frequency': freq,
             'date': start_date,
-            'time': start_time
+            'time': start_time,
+            'month': month_string
         }
 
         
@@ -77,6 +79,7 @@ def lambda_handler(event, context):
         hour = start_datetime.hour
         day = start_datetime.day
         month = start_datetime.month # doesn't actually get used
+    
         
         # get day of week, aws uses sunday as day 1 while datetime library uses monday as day 1
         week_day = (start_datetime.isoweekday() % 7) + 1
