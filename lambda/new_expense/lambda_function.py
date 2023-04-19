@@ -49,7 +49,7 @@ def lambda_handler(event, context):
             'owner': owner_email,
             'users': users,
             'amount': total,
-            "month" : datetime.datetime.now().strftime("%B").lower()[:3]
+            "month" : datetime.datetime.now().strftime("%B").lower()[:3],
             'is_payout': False,
             'contested': False
         }
