@@ -101,6 +101,9 @@ def user_to_user_in_group(user_id_owner, user_id_to, group_id, db):
 def get_group_name(group_id: str, db):
     return db['groups'].find_one({'uuid' : group_id})['name']
 
+# Simple getter to get the name of a user from their email
+def get_user_name(user_email: str, db):
+    return db['users'].find_one({'email' : user_email})['name']
 
 # name of table being queried on, query, database from get_database()
 def query_table(table_name, query: dict, db):
