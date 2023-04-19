@@ -31,6 +31,9 @@ def lambda_handler(event, context):
             manager = mongo.query_table('users', {'email': group['manager']}, db)
             
             if remove:
+                group['analytics'][expense['owner']]['tags'][expense['tag']] -= expense['amount']
+                group['analytics'][expense['owner']]['month'][expense['month']] -= 1
+                db['groups'].update_one({'uuid' : group['uuid']}, {'$set': {'analytics' : group['analytics']}})
                 email_users = []
                 notif_users = []
                 expense['users'].append([expense['owner'], -expense['amount']])
