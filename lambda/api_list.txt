@@ -484,6 +484,7 @@ recurring_expense:
         'start_date': string (ISO)
         'start_time': string (ISO)
         'frequency': string (daily, weekly, or monthly),
+        'group_id': string,
         'tag': (string) -> 'Entertainment' | 'Rent' | 'Food' | 'Misc' | 'No Tag'
     }
     expense dict contains user email strings as keys and amount owed doubles as values. All values positive,

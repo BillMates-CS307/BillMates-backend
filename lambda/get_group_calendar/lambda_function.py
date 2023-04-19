@@ -39,6 +39,8 @@ def lambda_handler(event, context):
             o['expense'] = None
             o['frequency'] = 'none'
             o['location'] = e['location']
+            o['id'] = e['event_id']
+            o['group_id'] = group_id
             event_list.append(o)
         for r in recurs:
             o = {}
@@ -51,6 +53,8 @@ def lambda_handler(event, context):
             o['expense'] = r['expense']
             o['frequency'] = r['frequency']
             o['location'] = None
+            o['id'] = r['recurring_expense_id']
+            o['group_id'] = group_id
             event_list.append(o)
         response['events'] = event_list
         
