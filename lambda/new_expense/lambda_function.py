@@ -60,7 +60,7 @@ def lambda_handler(event, context):
         # Get the month
         month = datetime.datetime.now().strftime("%B").lower()[:3]
         analytics[owner_email]["month"][month] += 1
-        analytics[owner_email]["tags"][tag] += 1
+        analytics[owner_email]["tags"][tag] += total
         db['groups'].update_one({'uuid' : group_id}, {'$set' : {'analytics' : analytics}})
         
         # add expense to group expenses field
