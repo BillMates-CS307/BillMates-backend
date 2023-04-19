@@ -39,7 +39,7 @@ def lambda_handler(event, context):
                 for member in group['members']:
                     if member != payload['email']:
                         response['analytics'][group['uuid']]['expense_relations'][member] = mongo.user_to_user_in_group(payload['email'], member, uuid, db)
-                    response['analytics'][group['uuid']]['user_totals'][member] = mongo.user_balance_in_group(payload['email'], uuid, db)
+                    response['analytics'][group['uuid']]['user_totals'][member] = mongo.user_balance_in_group(member, uuid, db)
                     response['analytics'][group['uuid']]['email_map'][member] = mongo.get_user_name(member, db)
     return api.build_capsule(response)
             
