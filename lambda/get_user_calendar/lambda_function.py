@@ -59,7 +59,7 @@ def lambda_handler(event, context):
             event_list.append(o)
         for r in recurs:
             o = {}
-            o['group_name'] = e['group_name']
+            o['group_name'] = r['group_name']
             o['creator'] = r['creator']
             o['name'] = r['name']
             o['description'] = r['description']
