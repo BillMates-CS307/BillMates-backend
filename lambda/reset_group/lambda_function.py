@@ -27,13 +27,18 @@ def lambda_handler(event, context):
         
         expense_list = []
         payment_list = []
+        shop_list = []
         for e in group['expenses']:
             expense_list.append(e)
         for p in group['pending_payments']:
             payment_list.append(p)
+        for s in group['shopping list']:
+            shop_list.append(s)
         db['expenses'].delete_many({'_id': {'$in': expense_list}})
         db['pending_paid_expenses'].delete_many({'_id': {'$in': payment_list}})
-        
+        db['shoppinglists'].delete_many({'_id': {'$in': shop_list}})
+        group['shopping list'] = []
+        db['groups'].update_one({'uuid' : group['uuid']}, {'$set':{'shopping list' : group['shopping list']}})
         # send notification
         email_users = []
         m_name = mongo.query_table('users', {'email': group['manager']}, db)['name']
